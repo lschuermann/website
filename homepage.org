@@ -1,0 +1,96 @@
+#+TITLE: Homepage Org
+#+AUTHOR: Leon Schuermann
+
+* Log
+
+** [2023-11-16 Thu] Implementing =content= in Atom feed
+
+Atom feed should have content encapsulated in =<![CDATA[...]]>= XML
+container. Thought that this would need to be done in Nix, after XML
+templating. Turns out this is not necessary, as the Nix =toXML=
+builtin escapes XML characters in the ~<string value="...">~ attribute
+properly already, and XML stylesheets can unescape this value and
+surround it with CDATA markers.
+
+However, the way of traversing the to-be encoded data was kinda neat,
+so keeping here:
+#+BEGIN_SRC nix
+  toCdataXMLPrepare' = idx: data:
+    if builtins.elem (builtins.typeOf data) ["float" "int" "bool"] then
+      # Nothing to transform, simply pass through:
+      { idx = idx; transformed = data; replacements = {}; }
+    else if builtins.typeOf data == "string" then
+      # Need to escape any occurrences of "$" with "$_" to avoid
+      # confusion around interpreting "$cdata_$ placeholders.
+      {
+        idx = idx;
+        transformed = builtins.replaceStrings ["$"] ["$_"] data;
+        replacements = {};
+      }
+    else if builtins.typeOf data == "list" then
+      # Must consider each element. Map to a transformed version of
+      # each element and collect all the replacements.
+      pkgs.lib.foldl ({ idx, transformed, replacements }: val: let
+        r = toCdataXMLPrepare' idx val;
+      in {
+        idx = r.idx;
+        transformed = transformed ++ [ r.transformed ];
+        replacements = replacements // r.replacements;
+      }) { idx = idx; transformed = []; replacements = {}; } data
+    else if builtins.typeOf data == "set" then
+      # Handle sets which contain `_cdata = true;` attribute:
+      if data ? "_cdata" && data._cdata == true then
+        # This is a string to be cdata-encoded. Thus, generate an appropriate
+        # placeholder token and return it instead. Also, increment the token
+        # index:
+        let
+          token = "$cdata_${builtins.toString idx}_tok";
+        in {
+          idx = idx + 1;
+          # Append _tok, to avoid one token becoming a prefix of the other
+          # (e.g., $cdata_1 would be a prefix of $cdata_10).
+          transformed = token;
+          replacements = {
+            "${token}" =
+              builtins.replaceStrings ["$" "]]>"] ["$_" "$cdata_end"] data.data;
+          };
+        }
+      else
+        # This is a regular struct. Simply map over all attribute names and
+        # values, but do so sequentially with a fold to assign unique idxes:
+        pkgs.lib.foldl ({ idx, transformed, replacements }: { name, value }: let
+          r = toCdataXMLPrepare' idx value;
+        in {
+          idx = r.idx;
+          transformed = transformed // { "${name}" = r.transformed; };
+          replacements = replacements // r.replacements;
+        }) { idx = idx; transformed = {}; replacements = {}; } (pkgs.lib.mapAttrsToList pkgs.lib.nameValuePair data)
+    else
+      abort "Unknown data type ${builtins.typeOf data}";
+
+  toCdataXMLPrepare = toCdataXMLPrepare' 0;
+
+  toCdataXML = data: let
+    prepared = toCdataXMLPrepare data;
+    xml = builtins.toXML prepared.transformed;
+
+    # We extract the replacements into a list once here, such that we are
+    # guaranteed that builtins.map'ing over them twice is going to process them
+    # in identical order:
+    replacements = pkgs.lib.mapAttrsToList pkgs.lib.nameValuePair prepared.replacements;
+
+    # Now we can replace all tokens with their appropriate <![CDATA[...]]>
+    # guards. They're guaranteed to not contain a "]]>" cdata end token, and
+    # also have all of their "$" characters escaped to "$_", like all other
+    # strings:
+    tokensReplacedXML =
+      builtins.replaceStrings
+        (builtins.map ({ name, value }: name) replacements)
+        (builtins.map ({ name, value }: "<![CDATA[${value}]]>") replacements)
+        xml;
+  in
+    # Finally, to a last set of replacements to convert the "$_" back to "$",
+    # and replace the "$cdata_end" tokens with a pair of "]]><![CDATA[" cdata
+    # end and start tags:
+    builtins.replaceStrings ["$cdata_end" "$_"] ["]]><![CDATA[" "$"] tokensReplacedXML;
+#+END_SRC

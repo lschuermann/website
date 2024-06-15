@@ -1,0 +1,483 @@
+---nix
+{ pageTemplate, ... }:
+{ pkgs, lib, util
+
+, # Current Git rev of the page, to be inserted in the footer.
+  gitRev
+, # Path to page assets directory, including trailing slash
+  assetsPath
+
+, # Title inserted in the HTML title tag, followed by "- ${siteTitle}". Can be
+  # null, which will cause just the "${siteTitle}" to be used.
+  pageTitle ? null
+, # ID string uniquely identifying this particular page.
+  pageId
+, # Rendered file path, passed down to meta.
+  filePath ? "/${pageId}.html"
+, # URL relative to the site root where this particular page is
+  # accessible. Falls back to the filePath, assuming a static web server.
+  pageUrl ? filePath
+, # Proper page content, footer content, etc.
+  content
+, footerContent ? ""
+, # Optional page-specific CSS styles
+  pageCss ? null
+, # Sometimes we want to highlight a navigation entry, even if the page ID
+  # doesn't match. This list can include such page IDs. Alternatively, pass
+  # in a function, which is invoked to check whether a given page ID matches.
+  pageNavidMatches ? []
+, # If there is a deviating canonical page for this page, its pageId can be
+  # specified here:
+  canonicalPageId ? null
+, # An optional abstract of this page, with only minimal markup (bold / italics, etc.)
+  abstract ? null
+, # Optional JSON-LD structured data, to be embedded in the page header.
+  jsonLd ? null
+, # Whether to allow robots to index this page.
+  allowIndex ? true
+, # Exported context usable by other pages (a "passthru" mechanism)
+  export ? null
+
+, # List of pages to be listed in the header, with a header text, link and their
+  # respective IDs
+  headerNavPages ? []
+, # List of pages to be listed in the footer, with a title, link and their
+  # respective IDs
+  footerNavPages ? []
+
+, # Global URL prefix
+  urlPrefix
+
+, # Applied & rendered pages as part of the fixed point evaluation.
+  pages
+}@args:
+
+let
+
+  indent = spaces: str:
+    let
+      indentation = lib.concatStringsSep "" (
+        lib.genList (_: " ") spaces
+      );
+      lines = lib.splitString "\n" str;
+    in
+      lib.concatStringsSep "\n" (
+        [(lib.head lines)] ++
+        (builtins.map (line: indentation + line) (lib.tail lines))
+      );
+
+  stripTrailingWhitespace = str:
+    let
+      strippedSpace = lib.removeSuffix " " str;
+      stripped = lib.removeSuffix "\t" strippedSpace;
+    in
+      if stripped == str then str else stripTrailingWhitespace stripped;
+
+  stripTrailingWhitespace' = str:
+    lib.concatStringsSep "\n" (
+      builtins.map stripTrailingWhitespace (
+        lib.splitString "\n" str
+      )
+    );
+
+  # If we follow these guidelines, then google complains about this being malformed JSON:
+  # https://www.w3.org/TR/json-ld11/#restrictions-for-contents-of-json-ld-script-elements
+  #
+  # Thus, let this break the first time we encounter "<" or ">" characters in the JSON-
+  # encoded string, and then use https://search.google.com/test/rich-results/ to figure
+  # out a Google-compliant escaping strategy.
+  escapeJsonLd = str:
+    if lib.hasInfix "<" str || lib.hasInfix ">" str then
+      abort "JSON-LD contains \"<\" or \">\", TODO fix escaping!"
+    else
+      str;
+
+  # TODO: delete trailing whitespace in rendered file
+
+  # Main site title for the HTML title tag, either as a suffix for the
+  # page title or standalone
+  siteTitle = "Leon Schuermann";
+
+in
+
+{
+  inherit export;
+
+  meta = {
+    inherit
+      pageTitle
+      pageId
+      filePath
+      abstract;
+
+    url = urlPrefix + pageUrl;
+  };
+
+  content = stripTrailingWhitespace' (util.template pageTemplate {
+    inherit
+      lib
+      indent
+      gitRev
+      assetsPath
+      headerNavPages
+      footerNavPages
+      siteTitle
+      pageTitle
+      canonicalPageId
+      content
+      footerContent
+      pageCss
+      pages
+      jsonLd
+      escapeJsonLd
+      allowIndex
+    ;
+
+    pageNavidMatchesFn =
+      if builtins.typeOf pageNavidMatches == "list" then
+        (testPageId: builtins.elem testPageId (pageNavidMatches ++ [pageId]))
+      else
+        pageNavidMatches;
+  });
+
+  validator = output: pkgs.runCommand "homepage-${pageId}-validator" {} ''
+     ${pkgs.validator-nu}/bin/vnu --filterpattern '^.*(Charmod C073).*$' "${output}${filePath}"
+    touch $out
+  '';
+}
+
+---pageTemplate
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Make sure that this website displays correctly accross
+    browsers and devices -->
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    ${ctx.lib.optionalString (ctx.jsonLd != null) ''
+      <script type="application/ld+json">${
+        ctx.escapeJsonLd (builtins.toJSON ctx.jsonLd)
+      }</script>
+    ''}
+
+    ${ctx.lib.optionalString (!ctx.allowIndex) ''
+      <meta name="robots" content="noindex">
+    ''}
+
+    <title>${ctx.lib.optionalString
+      (ctx.pageTitle != null) "${ctx.pageTitle} - "
+    }${ctx.siteTitle}</title>
+
+    ${ctx.lib.optionalString (ctx.canonicalPageId != null) ''
+      <link rel="canonical" href="${ctx.pages."${ctx.canonicalPageId}".meta.url}">
+    ''}
+
+    <style>
+      /* Load hosted font(s). */
+      @font-face {
+        font-family: "FiraSans";
+        font-weight: normal;
+        src: url("${ctx.assetsPath}font/firasans-regular.otf");
+      }
+      @font-face {
+        font-family: "FiraSans";
+        font-weight: bold;
+        src: url("${ctx.assetsPath}font/firasans-bold.otf");
+      }
+
+      @font-face {
+        font-family: "DejaVuSans";
+        font-weight: normal;
+        src: url("${ctx.assetsPath}font/dejavusans-regular.ttf");
+      }
+      @font-face {
+        font-family: "DejaVuSans";
+        font-weight: bold;
+        src: url("${ctx.assetsPath}font/dejavusans-bold.ttf");
+      }
+
+      @font-face {
+        font-family: "FontAwesome4";
+        font-weight: normal;
+        src: url("${ctx.assetsPath}font/fontawesome4.otf");
+      }
+      @font-face {
+        font-family: "Academicons";
+        font-weight: normal;
+        src: url("${ctx.assetsPath}font/academicons.ttf");
+      }
+
+      /* Generic page settings. */
+      a {
+        color: #000;
+      }
+
+      h1 {
+        border-top: 1px solid;
+        margin-top: 1em;
+        padding-top: 0.5em;
+      }
+
+      h1.first-heading {
+        border-top: 0px;
+      }
+
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0;
+
+        font-family: "FiraSans", "DejaVuSans", Arial, sans;
+        font-size: 1.1rem;
+        color: #000;
+
+        /* Reset the counter for the footnotes once per page, within the
+        body. This is required for the counter to work at all. */
+        counter-reset: footnotes;
+      }
+
+      header {
+        margin: 0px 1.2rem 2rem 1.2rem;
+        padding: 1.2rem 0px 0px 0px;
+
+        font-size: 1.2em;
+
+        /* The header consists of two elements. The CSS flexbox layout will make
+        sure that these items are placed with as much space as possible in
+        between (i.e. at the left and right side of the screen). However, they
+        will automatically wrap when the screen is too small. */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      header #logo {
+        margin-bottom: 1.2rem;
+
+        font-size: 1.3em;
+        /* On large screens no impact, but centers when wrapping. */
+        text-align: center;
+      }
+
+      header a {
+        /* Avoid underscored links in the header. */
+        text-decoration: none;
+      }
+
+      header nav {
+        margin-bottom: 1.2rem;
+
+        /* On large screens no impact, but centers when wrapping. */
+        text-align: center;
+      }
+
+      /* This is a dummy element rendered before the first navigation anchor
+      containing a hidden whitespace character which has the same font size as
+      the header #logo element. This makes sure that the nav flexbox container
+      has the same height and will thus be correctly aligned vertically. */
+      header nav a::before {
+        content: " ";
+        visibility: hidden;
+        font-size: 1.3em;
+      }
+
+      header nav a.nav-current {
+        text-decoration: underline;
+      }
+
+      /* Add a bit of space between navigation elements */
+      header nav a {
+        margin-right: 0.5em;
+      }
+
+      main {
+        margin: 0px 1.2rem 0px 1.2rem;
+      }
+
+      /* On the landing page, the primary heading is displayed inline with the
+      text but in a slightly larger font size. */
+      h1#greeting {
+        display: inline;
+        border-top: none;
+        font-size: 1.3em;
+        font-weight: normal;
+      }
+
+      /* After the greeting "heading", continue with an inline paragraph. */
+      p#greeting-cntd {
+        display: inline;
+      }
+
+      /* In the first part of the landing page, secondary headings are simply
+      displayed as paragraphs of text with an arrow in front of them */
+      h2.main-secheader {
+        margin-top: 1.7em;
+
+        font-size: 1em;
+        font-weight: normal;
+      }
+
+      h2.main-secheader::before {
+        /* Fira does not include this symbol */
+        font-family: "DejaVuSans", Arial, sans;
+        content: '↪ ';
+        font-size: 1.5em;
+      }
+
+      /* Support for inline icons in text. We want to limit the icon's height to
+         the text height */
+      img.link-icon {
+        display: inline-block;
+        max-height: .85em;
+        margin-right: .25em;
+      }
+
+      span.icon-fontawesome4 {
+        font-family: "FontAwesome4";
+      }
+
+      span.icon-academicons {
+        font-family: "Academicons";
+      }
+
+      /* Footnote support. This uses CSS counters to iterate the footnotes, but
+      it cannot automatically correlate footnote numbers to the proper footnotes
+      on the bottom of the page. Once a template engine is used, this should
+      probably be done in the templating software itself. */
+      [role="doc-noteref"] {
+        counter-increment: footnotes;
+        padding-left: .25em;
+        padding-right: 0.5em;
+        text-decoration: none;
+      }
+
+      [role="doc-noteref"]::after {
+        content: '[' counter(footnotes) ']';
+        vertical-align: super;
+        font-size: 0.75em;
+      }
+
+      [role="doc-noteref"]:focus::after {
+        outline: thin dotted;
+        outline-offset: 2px;
+      }
+
+      /* Also supply a class style for links which aren't a real footnote. This
+      can be used to achieve consistent alignment. */
+      .fake-noteref {
+        padding-left: .25em;
+        padding-right: 0.5em;
+      }
+
+      .fake-noteref::after {
+        content: '[0]';
+        visibility: hidden;
+        vertical-align: super;
+        font-size: 0.75em;
+      }
+
+
+      /* Footnote backlink symbol */
+      a.doc-backlink {
+        /* Fira does not include this symbol */
+        font-family: "DejaVuSans", Arial, sans;
+      }
+
+      /* Footer with footnotes and copyright message. */
+      footer {
+        margin-top: 2em;
+        padding-top: 0.5em;
+        margin-bottom: 2em;
+        width: 100%;
+
+        border-top: 1px solid;
+
+        font-size: 0.8em;
+      }
+
+      footer .footer-center {
+        width: 100%;
+        text-align: center;
+      }
+
+      footer .copyright-message {
+        margin-top: 1.5em;
+        display: inline-block;
+        max-width: 580px;
+      }
+
+      @media all and (min-width: 400px) {
+        footer .copyright-message {
+          padding-left: 3em;
+          padding-right: 3em;
+        }
+      }
+
+      footer .revision-info, footer .footer-nav {
+        display: inline-block;
+        margin-top: 0.5em;
+      }
+
+      ${ctx.lib.optionalString (ctx.pageCss != null) ctx.pageCss}
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div id="logo">
+        <a href="/">Leon Schuermann</a>
+      </div>
+      <nav>
+        ${
+          ctx.indent 8 (
+            ctx.lib.concatStringsSep "\n" (
+              builtins.map (headerNavPage:
+                "<a href=\"${
+                    ctx.pages."${headerNavPage.id}".meta.url
+                  }\"${
+                    ctx.lib.optionalString (
+                      ctx.pageNavidMatchesFn headerNavPage.id
+                    ) " class=\"nav-current\""
+                  }>${
+                    headerNavPage.title
+                  }</a>"
+              ) ctx.headerNavPages
+            )
+          )
+        }
+      </nav>
+    </header>
+
+    <main>
+${ctx.content}
+    </main>
+
+    <footer>
+      ${ctx.indent 6 ctx.footerContent}
+
+      <div class="footer-center">
+        <span class="copyright-message">
+          Unless noted otherwise, all content on this page (excluding linked
+          resources) is licensed under
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons CC BY-SA 4.0</a>.
+          <a href="https://validator.w3.org/check?uri=referer">Validate this page with the W3C Validator.</a>
+        </span>
+        <span class="revision-info">
+          leon.schuermann.io@${builtins.substring 0 14 ctx.gitRev}
+        </span> &mdash; <span class="footer-nav">
+          ${ctx.lib.concatStringsSep ", " (
+            builtins.map (footerNavPage:
+              "<a href=\"${ctx.pages."${footerNavPage.id}".meta.url}\">${
+                footerNavPage.title
+              }</a>"
+            ) ctx.footerNavPages
+          )}
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,452 @@
+#+TITLE: Running Emacs in systemd's session.slice
+#+AUTHOR: Leon Schuermann
+#+DATE: 2023-11-12 14:11:00-05:00
+#+OPTIONS: toc:nil
+#+EXCLUDE_TAGS: noexport
+
+* Frontmatter                                                      :noexport:
+
+#+NAME: frontmatter
+#+BEGIN_SRC nix :tangle frontmatter.nix
+  { orgSource, pkgs, lib, util, ... }:
+  util.orgMeta orgSource // {
+    unpublished = false;
+    tags = [ "nix" "emacs" ];
+    abstractTag = "abstract";
+  }
+#+END_SRC
+
+#+NAME: org_setup
+#+BEGIN_SRC elisp :results none
+  (require 'ox-extra)
+  (ox-extras-activate '(ignore-headlines))
+#+END_SRC
+
+* Intro                                                     :ignore:abstract:
+
+I use Emacs and EXWM as my window manager. For this setup, running an
+Emacs daemon as a systemd-user unit allows me to attach multiple
+clients to this process (for instance, to work in the same session
+through an SSH connection on my iPad), and have the daemon survive
+restarts of my graphical session. However, all subprocesses started
+from within Emacs—which are virtually all applications & shells on my
+system—are then tracked within the same systemd /scope/. This means
+that a single application consuming excessive amounts of memory can
+bring down my entire user session (looking at you, Firefox). This post
+documents how you can move this Emacs daemon from the systemd
+=app.slice= into the more appropriate =session.slice=, and run
+applications & shells from within Emacs in their own scopes in
+=app.slice=.
+
+#+TOC: headlines 1
+
+* Emacs as a systemd user unit
+
+To run an Emacs daemon as a systemd user-unit on a NixOS system, it's
+as easy setting the following configuration option:
+
+#+BEGIN_SRC nix
+  services.emacs.enable = true;
+#+END_SRC
+
+This will generate a systemd user-unit globally, for all users:
+
+#+BEGIN_EXAMPLE
+> systemctl --user status emacs.service
+● emacs.service - Emacs: the extensible, self-documenting text editor
+     Loaded: loaded (/etc/systemd/user/emacs.service; enabled; preset: enabled)
+     Active: active (running) since Sun 2023-11-12 12:43:15 EST; 14min ago
+#+END_EXAMPLE
+
+On non-NixOS systems you can manually create a systemd user-unit that
+simply starts =emacs --daemon= with =Type=forking= to achieve the same
+result.
+
+* Systemd /slices/, /scopes/ and /services/
+
+However, when we use this daemon for a while and spawn some
+subprocesses, we can observe a systemd supervision tree such as the
+following:
+
+#+BEGIN_EXAMPLE
+> systemctl --user status
+● caesium
+    State: running
+    Units: 356 loaded (incl. loaded aliases)
+     Jobs: 0 queued
+   Failed: 0 units
+    Since: Fri 2023-11-03 13:09:42 EDT; 1 week 2 days ago
+  systemd: 253.6
+   CGroup: /user.slice/user-1000.slice/user@1000.service
+           ├─app.slice
+           │ ├─emacs.service
+           │ │ ├─ 527741 /run/current-system/sw/bin/fish
+           │ │ ├─ 599026 bash /tmp/nix-shell-599026-0/rc
+           │ │ ├─ 601605 fish
+           │ │ ├─ 719460 /run/current-system/sw/bin/fish
+           │ │ ├─1313249 bash /tmp/nix-shell-1313249-0/rc
+           │ │ ├─1480430 /nix/store/85vasp6dpm5jldv45sqggxijcp910px6-erlang-25.3.2/lib/erlang/erts-13.2.2/bin/beam.smp>
+           │ │ ├─1480452 erl_child_setup 1024
+           │ │ ├─2116444 /nix/store/5vx99s8cjzv8hcirly8g06alhjz0zaba-emacs-28.2/bin/emacs --daemon
+           │ │ ├─2116678 /nix/store/sbr06rvajdmqdxhdf5rg9z3r87fifral-emacs-packages-deps/share/emacs/site-lisp/elpa/pd>
+           │ │ ├─3378466 /run/current-system/sw/bin/fish
+           │ │ ├─3408377 ssh root@10.237.4.2
+           │ │ ├─3408502 "ssh: /home/leons/.ssh/S.root@10.237.4.2:22 [mux]"
+           │ │ └─3466757 /run/current-system/sw/bin/fish
+#+END_EXAMPLE
+
+We can see that the =emacs.service= is managed as part of the
+=app.slice= systemd /slice/. Also, the =emacs.service= unit tracks a
+bunch of subprocesses, such as shells or programs I've started from
+within Emacs. Let's check the [[https://www.freedesktop.org/software/systemd/man/latest/systemd.slice.html][systemd manual on slice units]]:
+
+#+BEGIN_QUOTE
+A slice unit is a concept for hierarchically managing resources of a
+group of processes. This management is performed by creating a node in
+the Linux Control Group (cgroup) tree. Units that manage processes
+(primarily scope and service units) may be assigned to a specific
+slice. For each slice, certain resource limits may be set that apply
+to all processes of all units contained in that slice.
+#+END_QUOTE
+
+So essentially, a /slice/ is a collection of /scope/ and /service/
+managed under a given cgroup. Systemd user sessions [[https://systemd.io/DESKTOP_ENVIRONMENTS/][create a few such
+slices for us]], namely:
+
+#+BEGIN_QUOTE
+- =session.slice=: Contains only processes essential to run the user’s
+  graphical session
+- =app.slice=: Contains all normal applications that the user is
+  running
+- =background.slice=: Useful for low-priority background tasks
+#+END_QUOTE
+
+And the [[https://www.freedesktop.org/software/systemd/man/latest/systemd-oomd.html][manpage of =systemd-oomd=]] tells us exactly why the above
+situation on my system is not great:
+
+#+BEGIN_QUOTE
+Be aware that if you intend to enable monitoring and actions on
+=user.slice=, =user-$UID.slice=, or their ancestor cgroups, it is
+highly recommended that your programs be managed by the systemd user
+manager to prevent running too many processes under the same session
+scope (and thus avoid a situation where memory intensive tasks trigger
+systemd-oomd to kill everything under the cgroup).
+#+END_QUOTE
+
+Thus, to conform with systemd's expectations, and to ultimately avoid
+having a single memory-hungry app kill our entire user-session, we
+should
+- move the =emacs.service= into the =session.slice=, as it is very
+  much essential to running our user session, and
+- run subprocesses started from within Emacs in =app.slice=, ideally
+  in their own /scope/, such that they are assigned their own cgroup
+  and that =systemd-oomd= can apply more fine-grained out-of-memory
+  policies.
+
+* Moving =emacs.service= into =session.slice=
+
+To run =emacs.service= as part of the =session.slice= supervision
+tree, we simply need to set the following option in the service's
+=[Unit]= section:
+
+#+BEGIN_EXAMPLE
+Slice=session.slice
+#+END_EXAMPLE
+
+In NixOS, we can achieve this by setting this option in the generated
+systemd user-unit configuration:
+
+#+BEGIN_SRC nix
+  systemd.user.services.emacs.serviceConfig = {
+    Slice = "session.slice";
+  };
+#+END_SRC
+
+Reloading the systemd user daemon (=systemctl --user daemon-reload=)
+and restarting the =emacs.service= should now spawn it under the
+=session.slice=, as intended:
+
+#+BEGIN_EXAMPLE
+> systemctl --user status
+● silicon
+   CGroup: /user.slice/user-1000.slice/user@1000.service
+           ├─app.slice
+           ├─session.slice
+           │ ├─emacs.service
+           │ │ ├─1122918 /nix/store/p7pp0ix0wr7gaxjdz7r8bpcbx2cdfms5-emacs-28.2/bin/emacs --daemon
+	   [...]
+#+END_EXAMPLE
+
+However, all subprocesses launched from within Emacs are still
+attached to =emacs.service=, and thus now managed in the
+=session.slice=.
+
+* Running Emacs subprocesses under =app.slice= scopes
+
+In general, we can instruct systemd to run a process under a new scope
+using the =systemd-run= command:
+
+#+BEGIN_EXAMPLE
+> systemd-run --user --scope -- sleep 60
+Running scope as unit: run-r243444bafda04cc08f72aa350fa7175c.scope
+#+END_EXAMPLE
+
+This will create a new anonymous scope and launch the supplied command
+within it:
+
+#+BEGIN_EXAMPLE
+> systemctl --user status
+● silicon
+   CGroup: /user.slice/user-1000.slice/user@1000.service
+           ├─app.slice
+           │ ├─run-r243444bafda04cc08f72aa350fa7175c.scope
+           │ │ └─1350382 /run/current-system/sw/bin/sleep 60
+	   [...]
+#+END_EXAMPLE
+
+While =systemd-run --user --scope= appears to default to creating
+scopes in =app.slice=, we can make that explicit by passing
+=--slice=app.slice=. Furthermore, to suppress the /Running scope as
+unit/ message, we can pass =-q= (/quiet/). Now, starting subprocesses
+in such scopes should be as easy as prefixing their commands with the
+above =systemd-run= incantation.
+
+Unfortunately, I am not aware of a method to apply this to all
+subprocesses launched by Emacs. Given that I almost exclusively work
+in EXWM and vterm-mode, spawning GUI applications and vterm shells in
+their own scopes is sufficient for me. However, Emacs may spawn a
+plethora of other (potentially memory-intensive) applications such as
+through Magit, etc. If you know of a more general approach to run
+subprocesses in their own scopes, please let me know!
+
+** Running EXWM applications in their own scopes
+
+EXWM defines the =s-&= key-binding by default to spawn an application
+without creating a buffer for its output. We can simply override the
+definition of this key-binding to start the passed commands through
+=systemd-run= instead:
+
+#+BEGIN_SRC emacs-lisp
+  (exwm-input-set-key
+   (kbd "s-&")
+   (lambda (command)
+     (interactive (list (read-shell-command "$ ")))
+     (start-process-shell-command
+      command
+      nil
+      (format "systemd-run -q --user --slice=app.slice --scope -- %s" command))))
+#+END_SRC
+
+** Running vterm shell processes in systemd scopes
+
+vterm-mode supports the =vterm-shell= customization, defaulting to the
+contents of the =shell-file-name= variable. We can simply customize
+this variable to prefix the shell command with =systemd-run=:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package vterm
+    :ensure t)
+  (custom-set-variables
+   '(vterm-shell (format "systemd-run -q --user --slice=app.slice --scope -- %s" shell-file-name)))
+#+END_SRC
+
+* Notes                                                              :noexport:
+
+OOM killer killing a =nix-build= that consumes excessive amounts of
+memory. This was run in a vterm, which was executed in the
+=run-r7cae3c4d95df48829493bda86ad528ef.scope=.
+#+BEGIN_EXAMPLE
+[409170.333963] MediaSu~isor #8 invoked oom-killer: gfp_mask=0x140cca(GFP_HIGHUSER_MOVABLE|__GFP_COMP), order=0, oom_score_adj=200
+[409170.333969] CPU: 2 PID: 2207414 Comm: MediaSu~isor #8 Tainted: P           O       6.1.60 #1-NixOS
+[409170.333971] Hardware name: LENOVO 20NN002EGE/20NN002EGE, BIOS N2LET71W (1.71 ) 12/05/2019
+[409170.333973] Call Trace:
+[409170.333975]  <TASK>
+[409170.333977]  dump_stack_lvl+0x44/0x5c
+[409170.333983]  dump_header+0x4a/0x211
+[409170.333988]  oom_kill_process.cold+0xb/0x10
+[409170.333991]  out_of_memory+0x1ee/0x520
+[409170.333994]  __alloc_pages_slowpath.constprop.0+0xcbd/0xe10
+[409170.333999]  __alloc_pages+0x220/0x250
+[409170.334001]  folio_alloc+0x17/0x50
+[409170.334003]  __filemap_get_folio+0x15d/0x370
+[409170.334007]  filemap_fault+0x139/0x910
+[409170.334010]  __do_fault+0x2e/0x80
+[409170.334013]  do_fault+0x1b9/0x410
+[409170.334016]  __handle_mm_fault+0x623/0xb80
+[409170.334020]  handle_mm_fault+0xdb/0x2d0
+[409170.334023]  do_user_addr_fault+0x191/0x570
+[409170.334027]  exc_page_fault+0x66/0x150
+[409170.334029]  asm_exc_page_fault+0x22/0x30
+[409170.334033] RIP: 0033:0x7f1e50dffd00
+[409170.334067] Code: Unable to access opcode bytes at 0x7f1e50dffcd6.
+[409170.334068] RSP: 002b:00007f1e46264338 EFLAGS: 00010297
+[409170.334070] RAX: 00007f1e49a48530 RBX: 00007f1e438d0a60 RCX: 0000000000000000
+[409170.334072] RDX: 00007f1e431d41f0 RSI: 0000000000000000 RDI: 00007f1e43bdfc80
+[409170.334073] RBP: 00007f1e431d4340 R08: 0000000000000000 R09: 00007f1e431d4610
+[409170.334074] R10: 00007f1e56ab36d8 R11: 0000000000000000 R12: 00007f1e49ab55e0
+[409170.334075] R13: 00007f1e431d4610 R14: 00007f1e49ab5760 R15: 00007f1e431d4340
+[409170.334078]  </TASK>
+[409170.334088] Mem-Info:
+[409170.334090] active_anon:3178790 inactive_anon:333875 isolated_anon:0
+                 active_file:1326 inactive_file:1557 isolated_file:0
+                 unevictable:98904 dirty:0 writeback:0
+                 slab_reclaimable:10026 slab_unreclaimable:121664
+                 mapped:17393 shmem:121450 pagetables:18482
+                 sec_pagetables:0 bounce:0
+                 kernel_misc_reclaimable:0
+                 free:50498 free_pcp:0 free_cma:0
+[409170.334096] Node 0 active_anon:12715160kB inactive_anon:1335500kB active_file:5304kB inactive_file:6228kB unevictable:395616kB isolated(anon):0kB isolated(file):0kB mapped:69572kB dirty:0kB writeback:0kB shmem:485800kB shmem_thp: 120832kB shmem_pmdmapped: 0kB anon_thp: 0kB writeback_tmp:0kB kernel_stack:28748kB pagetables:73928kB sec_pagetables:0kB all_unreclaimable? no
+[409170.334100] Node 0 DMA free:13312kB boost:0kB min:64kB low:80kB high:96kB reserved_highatomic:0KB active_anon:0kB inactive_anon:0kB active_file:0kB inactive_file:0kB unevictable:0kB writepending:0kB present:15992kB managed:15360kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
+[409170.334105] lowmem_reserve[]: 0 1623 15620 15620 15620
+[409170.334108] Node 0 DMA32 free:63880kB boost:2048kB min:9064kB low:10816kB high:12568kB reserved_highatomic:0KB active_anon:1328968kB inactive_anon:111420kB active_file:240kB inactive_file:0kB unevictable:109900kB writepending:0kB present:1752236kB managed:1686672kB mlocked:0kB bounce:0kB free_pcp:0kB local_pcp:0kB free_cma:0kB
+[409170.334113] lowmem_reserve[]: 0 0 13997 13997 13997
+[409170.334115] Node 0 Normal free:124800kB boost:129024kB min:189524kB low:204648kB high:219772kB reserved_highatomic:8192KB active_anon:11386192kB inactive_anon:1224080kB active_file:4736kB inactive_file:6348kB unevictable:285716kB writepending:0kB present:14655488kB managed:14339504kB mlocked:264kB bounce:0kB free_pcp:152kB local_pcp:0kB free_cma:0kB
+[409170.334120] lowmem_reserve[]: 0 0 0 0 0
+[409170.334123] Node 0 DMA: 0*4kB 0*8kB 0*16kB 0*32kB 0*64kB 0*128kB 0*256kB 0*512kB 1*1024kB (U) 2*2048kB (UM) 2*4096kB (M) = 13312kB
+[409170.334132] Node 0 DMA32: 542*4kB (UME) 481*8kB (UME) 448*16kB (UME) 221*32kB (UME) 166*64kB (UME) 141*128kB (UM) 60*256kB (UM) 0*512kB 0*1024kB 0*2048kB 0*4096kB = 64288kB
+[409170.334143] Node 0 Normal: 5815*4kB (UME) 2988*8kB (UMEH) 2699*16kB (UMEH) 1066*32kB (UMEH) 29*64kB (UMEH) 1*128kB (U) 0*256kB 0*512kB 0*1024kB 0*2048kB 0*4096kB = 126444kB
+[409170.334157] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=1048576kB
+[409170.334158] Node 0 hugepages_total=0 hugepages_free=0 hugepages_surp=0 hugepages_size=2048kB
+[409170.334160] 124387 total pagecache pages
+[409170.334160] 0 pages in swap cache
+[409170.334161] Free swap  = 0kB
+[409170.334162] Total swap = 0kB
+[409170.334163] 4105929 pages RAM
+[409170.334163] 0 pages HighMem/MovableOnly
+[409170.334164] 95545 pages reserved
+[409170.334164] 0 pages cma reserved
+[409170.334165] Tasks state (memory values in pages):
+[409170.334166] [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+[409170.334173] [   1133]     0  1133    33068      485   278528        0          -250 systemd-journal
+[409170.334176] [   1197]     0  1197     8438      741    81920        0         -1000 systemd-udevd
+[409170.334180] [   1469]   994  1469     4132      277    69632        0          -900 systemd-oomd
+[409170.334182] [   1471]   154  1471    22424      251    77824        0             0 systemd-timesyn
+[409170.334185] [   1478]   999  1478     3409      251    61440        0             0 avahi-daemon
+[409170.334186] [   1480]     0  1480     2655      358    53248        0             0 bluetoothd
+[409170.334189] [   1499]     0  1499     4086      260    69632        0             0 systemd-machine
+[409170.334191] [   1503]  1000  1503    21687      218    73728        0             0 usbmuxd
+[409170.334193] [   1504]     4  1504     3988      699    69632        0          -900 dbus-daemon
+[409170.334194] [   1692]     0  1692    12443      373    86016        0             0 systemd-logind
+[409170.334196] [   1768]     0  1768    60857      622   102400        0             0 cups-browsed
+[409170.334198] [   1815]     0  1815    76475      227    90112        0             0 boltd
+[409170.334200] [   1844]     0  1844    83808     1527   151552        0             0 NetworkManager
+[409170.334202] [   1961]     0  1961     2142       75    49152        0             0 xinetd
+[409170.334204] [   1966]     0  1966     2645      266    57344        0         -1000 sshd
+[409170.334206] [   2011]     0  2011     2657      216    57344        0             0 login
+[409170.334208] [   2028]     0  2028    76502      316    94208        0             0 lightdm
+[409170.334209] [   2127]     0  2127     5899      510    81920        0             0 cupsd
+[409170.334212] [   2278]     0  2278     3947      888    73728        0             0 wpa_supplicant
+[409170.334213] [  14114]  1000 14114     5229      938    86016        0           100 systemd
+[409170.334215] [  14115]  1000 14115    42565     1004    94208        0           100 (sd-pam)
+[409170.334217] [  14139]  1000 14139    58779      607    86016        0             0 fish
+[409170.334219] [  14339]  1000 14339   700254     5950   266240        0           200 gpg-agent
+[409170.334221] [  14430]  1000 14430     1448      200    49152        0           200 dbus-daemon
+[409170.334223] [  16847]   996 16847    22146       77    53248        0             0 rtkit-daemon
+[409170.334225] [  22981]     0 22981   110746      839   126976        0             0 nix-daemon
+[409170.334228] [  37760]  1000 37760    21767      290    73728        0           200 tpm2daemon
+[409170.334229] [  37783]  1000 37783    77831      253    98304        0           200 .gnome-keyring-
+[409170.334231] [ 100260]  1000 100260   117164     3981   221184        0           200 pipewire
+[409170.334233] [ 100320]  1000 100320    14985     3843   122880        0           200 pipewire-pulse
+[409170.334235] [ 100331]  1000 100331   140740     1720   180224        0           200 wireplumber
+[409170.334237] [ 358453]  1000 358453    10747       31    61440        0           200 podman pause
+[409170.334239] [ 644800]  1000 644800     1419      139    45056        0           200 slirp4netns
+[409170.334241] [2391967]     0 2391967     1383       27    49152        0             0 agetty
+[409170.334243] [ 161428]   993 161428    60345      368   364544        0             0 systemd-journal
+[409170.334246] [ 377503]     0 377503    24532      289    81920        0             0 zed
+[409170.334247] [ 377738]   997 377738   171590      538   143360        0             0 nsncd
+[409170.334250] [ 920365]    28 920365    95287      485    98304        0             0 polkitd
+[409170.334251] [ 920377]     0 920377    98119      632   118784        0             0 ModemManager
+[409170.334253] [ 920378]     0 920378    77067      273    94208        0             0 accounts-daemon
+[409170.334255] [ 920398]    71 920398    20435     1613   122880        0             0 postgres
+[409170.334257] [ 920542]    71 920542    20463      632   118784        0             0 postgres
+[409170.334259] [ 920544]    71 920544    20435      574   118784        0             0 postgres
+[409170.334261] [ 920545]    71 920545    20435      584   110592        0             0 postgres
+[409170.334262] [ 920546]    71 920546    20569      740   122880        0             0 postgres
+[409170.334264] [ 920547]    71 920547    16578      487    98304        0             0 postgres
+[409170.334266] [ 920548]    71 920548    20542      688   118784        0             0 postgres
+[409170.334267] [ 921120]     0 921120    58388      128    81920        0             0 mbim-proxy
+[409170.334269] [1122796]     0 1122796   399290     9143   843776        0             0 X
+[409170.334271] [1122918]  1000 1122918   124039    65941   962560        0           200 emacs
+[409170.334273] [1123660]     0 1123660    59782      368    94208        0             0 lightdm
+[409170.334275] [1124199]  1000 1124199     9621      559   110592        0           200 epdfinfo
+[409170.334277] [1124946]  1000 1124946     1681      148    49152        0             0 0d47pv5r70vcgly
+[409170.334278] [1125531]  1000 1125531      628       12    45056        0             0 emacsclient
+[409170.334280] [1130871]  1000 1130871     3393      443    65536        0           200 ssh
+[409170.334282] [1131274]     0 1131274    38746       75    61440        0             0 gpg-agent
+[409170.334284] [1141094]  1000 1141094    22047      386    69632        0           200 fish
+[409170.334286] [1141138]  1000 1141138  3158931   106187  4079616        0           200 .firefox-wrappe
+[409170.334288] [1141450]  1000 1141450    56159     2217   356352        0           200 Socket Process
+[409170.334290] [1141516]  1000 1141516   644464     6733   794624        0           167 Privileged Cont
+[409170.334292] [1141653]  1000 1141653  4912591    16085  1499136        0           100 WebExtensions
+[409170.334294] [1141799]  1000 1141799    71298     2712   425984        0           200 Utility Process
+[409170.334296] [1141849]  1000 1141849   674424    20549  1474560        0           167 Isolated Web Co
+[409170.334298] [1147502]  1000 1147502    41046      483    69632        0           200 fish
+[409170.334300] [1150234]  1000 1150234    60777     1314    98304        0           200 fish
+[409170.334301] [1151809]  1000 1151809    60043      671    81920        0           200 fish
+[409170.334303] [1151862]  1000 1151862     3293      256    61440        0           200 ssh
+[409170.334305] [1170416]  1000 1170416    60752     1683    98304        0           200 fish
+[409170.334307] [1173769]  1000 1173769     2317      563    53248        0           200 bash
+[409170.334308] [1175254]  1000 1175254    60854     1775    86016        0           200 fish
+[409170.334310] [1373876]  1000 1373876   143850     6502   860160        0           200 RDD Process
+[409170.334312] [1453366]  1000 1453366     1071      317    45056        0           200 ispell
+[409170.334314] [1466418]  1000 1466418   633005    14744   802816        0           167 Isolated Web Co
+[409170.334316] [1546442]  1000 1546442   650032    22242  1007616        0           167 Isolated Web Co
+[409170.334318] [1592927]  1000 1592927   631298    13897   790528        0           167 Isolated Web Co
+[409170.334320] [1594325]  1000 1594325   626509     5802   688128        0           167 Isolated Web Co
+[409170.334321] [1615706]  1000 1615706   674502    34182  1720320        0           167 Isolated Web Co
+[409170.334323] [1633111]  1000 1633111   624855     8212   708608        0           167 Isolated Web Co
+[409170.334325] [1635778]  1000 1635778    59953      565    81920        0           200 fish
+[409170.334327] [1636018]  1000 1636018   659529    29960  1466368        0           167 Isolated Web Co
+[409170.334328] [1643011]  1000 1643011   663070    21695  1179648        0           167 Isolated Web Co
+[409170.334330] [1649082]  1000 1649082   656237    25371  1376256        0           167 Isolated Web Co
+[409170.334332] [1662386]  1000 1662386   620303     5915   647168        0           167 Isolated Web Co
+[409170.334334] [1676351]  1000 1676351   135822    16084   262144        0           200 nix
+[409170.334335] [1676400]     0 1676400   111112     1177   126976        0             0 nix-daemon
+[409170.334337] [1683235]  1000 1683235   644081     7688   839680        0           167 Isolated Web Co
+[409170.334339] [1704891]  1000 1704891   633066     6449   729088        0           167 Isolated Web Co
+[409170.334341] [1710616]  1000 1710616   619027     5430   622592        0           167 Isolated Web Co
+[409170.334343] [1715100]  1000 1715100   628566     5519   712704        0           167 Isolated Web Co
+[409170.334344] [1742104]  1000 1742104   638869    14028   872448        0           167 Isolated Web Co
+[409170.334346] [1742720]  1000 1742720   626763    10347   745472        0           167 Isolated Web Co
+[409170.334348] [1826178]  1000 1826178    60003      952    86016        0           200 fish
+[409170.334349] [1829989]  1000 1829989     2318      564    57344        0           200 bash
+[409170.334351] [1830839]  1000 1830839    78842     1011    98304        0           200 fish
+[409170.334353] [1832978]  1000 1832978   620858     6230   655360        0           167 Isolated Web Co
+[409170.334355] [1841980]  1000 1841980   619129     5113   626688        0           167 Isolated Web Co
+[409170.334357] [1842437]  1000 1842437   634400    10745   757760        0           167 Isolated Web Co
+[409170.334359] [1996267]  1000 1996267   639305     7002   835584        0           167 Isolated Web Co
+[409170.334361] [1998743]  1000 1998743   631448    13241   782336        0           167 Isolated Web Co
+[409170.334362] [2024730]  1000 2024730 14412981    95150  3272704        0           167 Isolated Web Co
+[409170.334364] [2025346]  1000 2025346   632036     6923   753664        0           167 Isolated Web Co
+[409170.334366] [2030619]  1000 2030619   622349     6329   708608        0           167 Isolated Web Co
+[409170.334368] [2031606]  1000 2031606  2776775    29332  1523712        0           167 Isolated Web Co
+[409170.334370] [2036459]  1000 2036459   626321     7644   720896        0           167 Isolated Web Co
+[409170.334372] [2091101]  1000 2091101  2875854    66021  2883584        0           167 Isolated Web Co
+[409170.334374] [2091682]  1000 2091682   622005     6081   671744        0           167 Isolated Web Co
+[409170.334376] [2094558]  1000 2094558   621490     5938   708608        0           167 Isolated Web Co
+[409170.334377] [2095535]  1000 2095535   625781     5274   659456        0           167 Isolated Web Co
+[409170.334379] [2096206]  1000 2096206   606816     3423   536576        0           100 Isolated Servic
+[409170.334381] [2096640]  1000 2096640   625281     6796   737280        0           167 Isolated Web Co
+[409170.334383] [2098417]  1000 2098417  2767163    22692  1351680        0           167 Isolated Web Co
+[409170.334385] [2099580]  1000 2099580   628070    10656   737280        0           167 Isolated Web Co
+[409170.334387] [2101207]  1000 2101207   626448     5351   684032        0           167 Isolated Web Co
+[409170.334389] [2101407]  1000 2101407   628895     6084   712704        0           167 Isolated Web Co
+[409170.334391] [2121423]  1000 2121423    20550       87    65536        0           200 scdaemon
+[409170.334393] [2121426]     0 2121426   119476      296   122880        0             0 pcscd
+[409170.334395] [2121503]  1000 2121503     3437      407    65536        0           200 ssh
+[409170.334396] [2122137]  1000 2122137   781527    59301  2908160        0           167 Isolated Web Co
+[409170.334398] [2123145]  1000 2123145   654407     9200   942080        0           100 Isolated Web Co
+[409170.334400] [2124057]  1000 2124057   640126     8384   794624        0           100 Isolated Web Co
+[409170.334402] [2163272]  1000 2163272   626251     8749   724992        0           167 Isolated Web Co
+[409170.334404] [2199005]  1000 2199005    41041      525    77824        0           200 fish
+[409170.334406] [2199278]  1000 2199278    59927      521    90112        0           200 fish
+[409170.334408] [2199319]  1000 2199319     3836     1324    73728        0           200 htop
+[409170.334410] [2208612]  1000 2208612  2591654  2557613 20623360        0           200 nix-build
+[409170.334412] [2208614]     0 2208614   111368     1734   131072        0             0 nix-daemon
+[409170.334414] [2276126]  1000 2276126   607909     3883   540672        0           100 Isolated Servic
+[409170.334416] oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/user@1000.service/app.slice/run-r7cae3c4d95df48829493bda86ad528ef.scope,task=nix-build,pid=2208612,uid=1000
+[409170.334431] Out of memory: Killed process 2208612 (nix-build) total-vm:10366616kB, anon-rss:10229144kB, file-rss:1308kB, shmem-rss:0kB, UID:1000 pgtables:20140kB oom_score_adj:200
+#+END_EXAMPLE
+
+#  LocalWords:  Schuermann systemd EXWM SSH iPad toc frontmatter app
+#  LocalWords:  NixOS cgroup Magit
