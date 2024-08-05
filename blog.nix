@@ -1,6 +1,8 @@
 renderDrafts:
 { pkgs, lib, util, pages, urlPrefix, ... }@site_args:
 let
+  pageHeaderTitle = "Leon's Blog";
+
   # For JSON-LD structured data:
   authorUrls = {
     "Leon Schuermann" = "https://leon.schuermann.io/";
@@ -116,7 +118,7 @@ let
     in
       util.import_nixfm ./page.nix.html (
         site_args // rec {
-          inherit pageNavidMatches abstract;
+          inherit pageNavidMatches pageHeaderTitle abstract;
 
           pageId = "blog-${basename}";
           filePath = "/blog/${basename}.html";
@@ -276,7 +278,7 @@ let
         filePath = filePath;
         canonicalPageId = canonicalPageId;
 
-        inherit pageNavidMatches;
+        inherit pageNavidMatches pageHeaderTitle;
 
         content = ''
           ${header}

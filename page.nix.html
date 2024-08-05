@@ -10,6 +10,8 @@
 , # Title inserted in the HTML title tag, followed by "- ${siteTitle}". Can be
   # null, which will cause just the "${siteTitle}" to be used.
   pageTitle ? null
+, # Page header title, defaulting to siteTitle,
+  pageHeaderTitle ? null
 , # ID string uniquely identifying this particular page.
   pageId
 , # Rendered file path, passed down to meta.
@@ -138,6 +140,12 @@ in
         (testPageId: builtins.elem testPageId (pageNavidMatches ++ [pageId]))
       else
         pageNavidMatches;
+
+    headerTitle =
+      if pageHeaderTitle != null then
+        pageHeaderTitle
+      else
+        siteTitle;
   });
 
   validator = output: pkgs.runCommand "homepage-${pageId}-validator" {} ''
@@ -428,7 +436,7 @@ in
   <body>
     <header>
       <div id="logo">
-        <a href="/">Leon Schuermann</a>
+        <a href="/">${ctx.headerTitle}</a>
       </div>
       <nav>
         ${
