@@ -344,9 +344,9 @@ in
       }
 
       /* Footnote support. This uses CSS counters to iterate the footnotes, but
-      it cannot automatically correlate footnote numbers to the proper footnotes
-      on the bottom of the page. Once a template engine is used, this should
-      probably be done in the templating software itself. */
+       * it cannot automatically correlate footnote numbers to the proper footnotes
+       * on the bottom of the page. Once a template engine is used, this should
+       * probably be done in the templating software itself. */
       [role="doc-noteref"] {
         counter-increment: footnotes;
         padding-left: .25em;
@@ -387,7 +387,7 @@ in
       }
 
       /* Footer with footnotes and copyright message. */
-      footer {
+      footer, div#footnotes {
         margin-top: 2em;
         padding-top: 0.5em;
         margin-bottom: 2em;

@@ -23,7 +23,7 @@ let
         org-contrib ox-twbs
 
         # Syntax highlighting packages
-        nix-mode elixir-mode
+        nix-mode elixir-mode rust-mode llvm-mode
       ]);
 
       derivPrefix = "blog-${filename}";
@@ -59,6 +59,8 @@ let
             (require 'use-package)
             (use-package nix-mode)
             (use-package elixir-mode)
+            (use-package rust-mode)
+            (use-package llvm-mode)
 
             (custom-set-faces
              '(default                      ((t (:foreground \"black\" :background \"white\"))))
@@ -166,6 +168,10 @@ let
             blockquote {
               border-left: 4px solid lightgray;
               padding-left: 10px;
+            }
+
+            div.org-src-container span.linenr {
+              opacity: .6;
             }
           '';
 
