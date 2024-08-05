@@ -344,6 +344,22 @@ let
       )
     );
 
+  publishedTagList =
+    lib.zipAttrs (
+      lib.flatten (
+        builtins.map (page:
+          builtins.map
+            (tag: { "${tag}" = page; })
+            (page.export.blogpost.tags)
+        ) (
+          lib.filter (page:
+            !page.export.blogpost.unpublished
+          ) blogPages
+        )
+      )
+    );
+
+
 in
   blogPages ++ (
     builtins.map (tag:
@@ -362,7 +378,7 @@ in
       header = ''
         <h1 class="first-heading">Blog</h1>
         <p>          <a href="${pages.blog-atom.meta.url}">Atom feed</a>
-          – Tags: ${tagLinks (builtins.attrNames tagList)}
+          – Tags: ${tagLinks (builtins.attrNames publishedTagList)}
         </p>
       '';
       postFilter = (_: true);
