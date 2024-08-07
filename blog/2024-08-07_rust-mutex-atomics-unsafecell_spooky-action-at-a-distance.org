@@ -1,6 +1,6 @@
 #+TITLE: Rust's Mutex, Atomics and UnsafeCell – Spooky Action at a Distance?
 #+AUTHOR: Leon Schuermann
-#+DATE: 2024-08-03 23:38:00-05:00
+#+DATE: 2024-08-07 00:00:00-05:00
 #+OPTIONS: toc:nil
 #+EXCLUDE_TAGS: noexport
 
@@ -20,7 +20,7 @@
 #+BEGIN_SRC nix :tangle frontmatter.nix
   { orgSource, pkgs, lib, util, ... }:
   util.orgMeta orgSource // {
-    unpublished = true;
+    unpublished = false;
     tags = [ "rust" ];
     abstractTag = "abstract";
   }
@@ -34,26 +34,30 @@
 
 * Intro                                                     :ignore:abstract:
 
-TODO: Intro
-# Rust is notorious for its concepts of lifetimes, borrowing, and in particular
-# aliasing XOR mutability. This fundamental rule governs each value may have
-# either at most one reference that can be used to modify it, or a number of
-# references that may observe (but not write to!) it, /never both/. In practice,
-# this turns out to be a really useful rule: it enables a plethora of
-# optimizations in the compiler, and aids developers in producing code that is
-# free of race conditions—they always know whether and where values may be
-# changed.
+A defining feature of Rust is its concept of /aliasing ⊕
+mutability/. This rule governs that at any time a value may either
+have multiple /immutable/ shared references, or a single /mutable/
+unique reference, and never both. While this greatly helps in
+producing, fast, efficient and correct code, it can be limiting. To
+this end, Rust also features types that bend these rules, like
+src_rust[:exports code]{Mutex}, src_rust[:exports code]{RwLock},
+src_rust[:exports code]{Cell}, src_rust[:exports code]{RefCell}, and
+the ominous src_rust[:exports code]{UnsafeCell} types. In this post we
+explore how these types interact with Rust's type system and concepts
+of /references/ and /aliasing ⊕ mutability/. We do so by looking at
+how the src_rust[:exports code]{AtomicUsize} and src_rust[:exports
+code]{Mutex} types are implemented, how violating Rust's assumptions
+can lead to incorrect optimizations by the compiler, and the
+surprising /global/ impact of synchronization primitives.
 
-# However, Rust also features types that bend these rules: src_rust[:exports
-# code]{Mutex}, src_rust[:exports code]{RwLock}, src_rust[:exports code]{Cell},
-# src_rust[:exports code]{RefCell}, and the ominous src_rust[:exports
-# code]{UnsafeCell} types. [...]
+#+TOC: headlines 1
 
 * Atomics From Scratch
 
-William Henderson's blog features a great article on how to [[https://whenderson.dev/blog/implementing-atomics-in-rust/][implement Rust's
-atomic types]] (and [[https://whenderson.dev/blog/rust-mutexes/][ultimately even Mutexes]]) from scratch. I encourage reading
-the full article, but will repeat the essential parts of the code here as well:
+William Henderson's blog features a great article on how to [[https://whenderson.dev/blog/implementing-atomics-in-rust/][implement
+Rust's atomic types]] (and [[https://whenderson.dev/blog/rust-mutexes/][ultimately even Mutexes]]) from scratch. I
+encourage reading the full article, but will repeat the essential
+parts of the code here (for an AMD64 CPU) as well:
 
 #+begin_src rust -n
   pub struct AtomicUsize {
@@ -262,10 +266,11 @@ point? To illustrate this, we can extend the above example like so:
   }
 #+end_src
 
-We extend our src_rust[:exports code]{fn cell_test} function to take an
-additional src_rust[:exports code]{writer} function reference argument. This
-src_rust[:exports code]{writer} function is then called in between our first and
-second read of the src_rust[:exports code]{Cell<usize>}.
+We extend our src_rust[:exports code]{fn cell_test} to take an
+additional src_rust[:exports code]{writer} function reference
+argument. This src_rust[:exports code]{writer} function is then called
+in between our first and second read of the src_rust[:exports
+code]{Cell<usize>}.
 
 After this change, we can observe that Rust instead generates the following
 assembly[fn:1] ([[https://play.rust-lang.org/?version=stable&mode=release&edition=2021&gist=71cd229c9306fc2e8ec56ff0cbac9cbc][Playground]]):
@@ -758,29 +763,355 @@ tandem on the same atomic value, the compiler will provide us these
 guarantees for *all*, global variables that may potentially be shared
 with other threads.
 
-* [WIP] Conclusion
+* Conclusion
 
-- UnsafeCell and its interactions with concurrency are hard to reason
-  about
-- Concurrency programming constructs and their interactions with
-  compiler optimizations are not "local", this can be confusing
-- Rust's documentation on this is not great. It uses terms that are
-  "standard lingo" in LLVM documentation, but doesn't link to it. Its
-  intrinsics provide certain guarantees, but these are neither
-  documented on the intrinsic itself, nor on the safe wrapper
-  functions.
-  - E.g., how do you know what counts as an atomic operation, or
-    establishes a happens-before relation, as documented on
-    UnsafeCell?
+Concurrency and synchronization are tricky subjects on their own. As
+we have seen above, things get even more nuanced when we throw Rust's
+concepts around borrowing, references, and its compiler optimizations
+into the mix. While many of these basic concepts were familar to me
+from both practical experience and theoretical computer science
+lectures, seeing how they play in to the actual implementation of
+concurrency primitives in a high-level language such as Rust was still
+interesting (and at times surprising) to me. I hope that this post can
+demystify some of the /"magic"/ behavior and optimizations you may
+observe around these constructs.
 
-* [WIP] Further Questions
+One of those particularly nebulous constructs to me has always been
+src_rust[:exports code]{UnsafeCell}: /sure, it "opts out" of the Rust
+borrow checker, but what other effects does it have?/ /We need to
+"avoid data races", but how to do so exactly?/ Reasoning about this is
+hard, in part because we need to consider both Rust's high-level
+language invariants, low-level compiler optimization effects, _and_
+their interactions. Some slightly clearer language in
+src_rust[:exports code]{UnsafeCell}'s documentation could help a great
+amount here. For instance, a "happens-before" relation is well-defined
+by LLVM, but there is no clear documentation on which Rust compiler
+intrinsics establish it.
 
-- Interactions of UnsafeCell's =dereferenceable= attribute on volatile
-  (changing) memory, e.g. for DMA or MMIO. Safe? How does this
-  interact with Rust's abstract machine model?
-  - Is this meaningfully different than threads?
-  - How do you "avoid race conditions" as per =UnsafeCell='s
-    documentation on this memory?
+While they make sense when thinking about, something particularly
+surprising are the non-local /"spooky"/ effects that certain compiler
+intrinsics have on other program behavior. Rust usually requires
+developers to think _locally_ (/"is this reference still alive here?"/
+or /"have this variable's contents been moved?"/). Instead, these
+intrinsics have /implicit/, /global/ effects on program behavior after
+compiler optimizations, and these effects do not manifest in Rust's
+type system at all.
+
+* Aside: What About src_rust[:exports code]{VolatileCell}?
+
+Next to these concurrency primitives that Rust ships, some users
+decide to develop their own. There is [[https://crates.io/crates/parking_lot][=parking_lot=]], a crate with more
+efficient implementations of synchronization primitives. If you want
+to avoid using locks at all, the [[https://crates.io/crates/lockfree][=lockfree=]] crate might be interesting
+to you. And one of those special types that is popular among embedded
+developers is src_rust[:exports code]{VolatileCell} (like in [[https://docs.rs/vcell/latest/vcell/][=vcell=]],
+or [[https://docs.tockos.org/kernel/utilities/cells/struct.volatilecell][its Tock equivalent]]). In this section, we will try to apply some of
+the concepts learned above to this construct. Note that while much of
+the content of this section is trying to reason about the safety of
+src_rust[:exports code]{VolatileCell}, **I do not claim for any of
+this to be authoritative information**. These are mostly just notes I
+wrote down while reasoning about this myself.
+
+Embedded systems or bare-metal code commonly operate over memory that
+is not backed by RAM in the conventional sense. Instead, these memory
+address represent registers that are provided by peripherals,
+so-called "Memory Mapped I/O" (MMIO).
+
+In general, these peripherals run in parallel to the CPU—thus, it may
+be reasonable to effectively model them to be separate threads in your
+system. They "share" certain MMIO memory addresses with your program
+and may, at times, even be able to write to arbitary regular program
+memory too. Similar to threads, they should follow a contract for
+/when/ it is safe to read from or write to certain memory.
+
+However, despite behaving similar to a separate thread, these devices
+can differ in one significant regard: memory accesses (that is, both
+read or write operations) may also have arbitrary, device-specific
+side effects. A common example is that of a serial console (UART)
+controller. These devices feature internal queues that hold on to a
+limited amount of received bytes, which are later read by the
+CPU. While a separate thread might expose this as, e.g., a ring-buffer
+protected by a Mutex, such MMIO peripherals can implement a more
+efficient, lock-free way of exposing this information. Following
+example of a read-queue implemented within a serial console
+controller, it may expose the current queue's head element for every
+read to a specific queue register, but on each read /also/ immediately
+discard (/dequeue/) this head element.
+
+When paired with compiler optimizations as we've seen above, this can
+be problematic. The compiler makes many assumptions on how memory will
+behave, which can lead it to elide certain accesses, reorder them, or
+even insert spurious accesses when it believes this to be safe. These
+peripherals, though, don't share the compilers understanding around
+memory behavior. Thus, an optimizing compiler can translate a driver
+that correctly implements a device's hardware contract into something
+incorrect, or even dangerous (e.g., when a peripheral can override
+program memory).
+
+To avoid these issues, Rust provides /volatile/ memory operations
+(i.e., [[https://doc.rust-lang.org/stable/std/ptr/fn.read_volatile.html][reads]] and [[https://doc.rust-lang.org/stable/std/ptr/fn.write_volatile.html][writes]]). Volatile operations provide some unique
+guarantees:
+#+begin_quote
+Volatile operations are intended to act on I/O memory, and are
+guaranteed to not be elided or reordered by the compiler across other
+volatile operations.
+#+end_quote
+#+begin_quote
+The compiler shouldn’t change the relative order or number of volatile
+memory operations.
+#+end_quote
+
+However, notably, volatile operations are independent from atomic
+operations:
+#+begin_quote
+Just like in C, whether an operation is volatile has no bearing
+whatsoever on questions involving concurrent access from multiple
+threads. Volatile accesses behave exactly like non-atomic accesses in
+that regard. In particular, a race between a src_rust[:exports
+code]{read_volatile} and any other operation (reading or writing) on
+the same location is undefined behavior.
+#+end_quote
+
+These properties make their interactions with synchronization,
+ordering, and other compiler optimizations all the more
+interesting. For this post, we'll focus only on three things that have
+recently come up in discussions around Tock's use of src_rust[:exports
+code]{VolatileCell}. src_rust[:exports code]{VolatileCell} is not
+something that Rust provides; you can view its implementation [[https://docs.tockos.org/src/tock_cells/volatile_cell.rs][here]]. In
+fact, its soundness is subject to debate (e.g., [[https://github.com/rust-lang/unsafe-code-guidelines/issues/411#issuecomment-1581214968][in the Rust unsafe
+code guidelines]]) and is the motivation for this post.
+
+** Introducing src_rust[:exports code]{VolatileCell}
+
+src_rust[:exports code]{VolatileCell}'s purpose is to make a
+developer's life easier: peripherals that expose an MMIO-based
+interface typically do so by having their registers layed out such
+that it can be modeled like a =#[repr(C)]= struct, like [[https://github.com/tock/tock/blob/dee00dc23d32dd8116cb88b705ffaba11e950e72/chips/sifive/src/uart.rs#L21-L37][this]]:
+#+begin_src rust -n
+#[repr(C)]
+pub struct UartRegisters {
+    /// Transmit Data Register
+    txdata: u32,
+    /// Receive Data Register
+    rxdata: u32,
+    /// Transmit Control Register
+    txctrl: u32,
+    /// Receive Control Register
+    rxctrl: u32,
+    /// Interrupt Enable Register
+    ie: u32,
+    /// Interrupt Pending Register
+    ip: u32,
+    /// Baud Rate Divisor Register
+    div: u32,
+}
+#+end_src
+
+If we then cast a pointer at the address at which the peripheral's
+MMIO interface is exposed in memory (its /base address/) to a
+src_rust[:exports code]{&mut UartRegisters} reference, we have a
+convenient way to access its registers.
+
+Unfortunately, doing so would not be sound. Given that the peripheral
+can act like a different thread and change the values of these
+registers independent of the CPU, creating a unique, mutable reference
+to this struct would infringe on Rust's "no mutable aliasing"
+requirement. Despite that, regular memory accesses are subject to the
+compiler optimizations described above; for these registers, we need
+all accesses to be /volatile/.
+
+This is the niche that src_rust[:exports code]{VolatileCell} fills!
+It's quite simple, and like all things we discuss today wraps an
+src_rust[:exports code]{UnsafeCell} internally:
+#+begin_src rust -n
+  pub struct VolatileCell<T> {
+      value: UnsafeCell<T>,
+  }
+#+end_src
+
+To implement these volatile accesses, it features custom
+src_rust[:exports code]{get} and src_rust[:exports code]{set} methods
+respectively:
+#+begin_src rust -n
+  impl<T> VolatileCell<T> {
+      pub fn get(&self) -> T {
+	  // self.value.get() returns a *mut T pointer here:
+	  unsafe { ptr::read_volatile(self.value.get()) }
+      }
+
+      pub fn set(&self, value: T) {
+	  unsafe { ptr::write_volatile(self.value.get(), value) }
+      }
+  }
+#+end_src
+
+Thus, in essence, src_rust[:exports code]{VolatileCell} combines the
+properties of interior mutability with those of volatile memory
+accesses. With it, we can transform the above struct into a similar
+version, while still benefiting from a convenient API:
+#+begin_src rust -n
+pub struct UartRegisters {
+    /// Transmit Data Register
+    txdata: VolatileCell<u32>,
+    /// Receive Data Register
+    rxdata: VolatileCell<u32>,
+    ...
+#+end_src
+Neat.
+
+** src_rust[:exports code]{VolatileCell} and =dereferencable=
+
+Unfortunately, src_rust[:exports code]{VolatileCell} has issues. I
+encourage you to read [[https://github.com/rust-lang/unsafe-code-guidelines/issues/411][the discussion on the Rust unsafe code]]
+guidelines, but in short, this problem comes from the fact that all
+references in Rust are marked as =dereferencable= by default.
+
+This dereferenceability means that the compiler is free to, for
+instance as part of certain optimizations, insert a /spurious read/ to
+the reference's contents. And performing such a spurious read on a
+memory location where reads can have side effects can mean that for
+many uses, using this abstraction can be dangerous and unsound.
+
+Unfortunately, we do not have a good answer around this problem
+yet. For now, it seems that the only way to safely interact with such
+volatile memory is through volatile pointer operations, and never
+creating a Rust reference to the memory in question.
+
+** src_rust[:exports code]{VolatileCell} and Concurrency
+
+Another interesting concern is that of concurrency. As peripherals can
+be modeled as to behave effectively like another thread, we should
+make sure that src_rust[:exports code]{VolatileCell} is safe to use in
+these contexts—that is, making sure that it is safe to have a
+src_rust[:exports code]{VolatileCell} defined over memory that is
+being changed by hardware, and having all accesses be properly
+synchronized.
+
+Our analysis of Rust's src_rust[:exports code]{Mutex} gives us
+confidence that the mere existence of src_rust[:exports
+code]{VolatileCell} over memory that is being modified by hardware
+should not be of concern. In particular, this issue was raised [[https://github.com/tock/tock/pull/4129][on a PR
+for the Tock operating system]]: given that src_rust[:exports
+code]{UnsafeCell} does not make any guarantees about thread safety,
+and Rust is always free to dereference its contents based on the
+=dereferenceable= attribute, how can it possibly be safe to retain a
+reference to it in the first place? However, we can observe that
+src_rust[:exports code]{Mutex} does exactly this: it holds a reference
+to an src_rust[:exports code]{UnsafeCell} even when it may be modified
+concurrently by a different thread. Importantly, src_rust[:exports
+code]{Mutex} /does/ ensure that any /direct, intentional/ accesses of
+its value are properly synchronized.
+
+This brings us to our second question on synchronization. Here, the
+following statement is particularly worrying:
+#+begin_quote
+In particular, a race between a src_rust[:exports
+code]{read_volatile} and any other operation (reading or writing) on
+the same location is undefined behavior.
+#+end_quote
+Does using src_rust[:exports code]{read_volatile} over MMIO memory
+that may arbitrary change contents across any two accesses count as a
+"data race"?
+
+Unfortunately, atomic operations do not help here either:
+#+begin_quote
+Since C++ does not support mixing atomic and non-atomic accesses, or
+non-synchronized different-sized accesses to the same data, Rust does
+not support those operations either.
+#+end_quote
+
+I do not see a clear answer to this question. In practice, many
+developers rely on volatile accesses are for interacting with such
+hardware-modified registers without issues. One of the reasons for
+this might be that on most hardware platforms, MMIO read operations
+are always consistent: registers are updated atomically by
+peripherals, and a CPU will never be exposed to a partial write. It
+would be great if the Rust documentation could provide more guidance
+for these questions.
+
+** src_rust[:exports code]{VolatileCell} and Happens-Before Relations
+
+Finally, one important aspect to consider is that of volatile
+operations and their interactions with regular memory accesses.
+Again, Rust provides the following guarantees for volatile memory
+operations [emphasis added]:
+#+begin_quote
+Volatile operations are intended to act on I/O memory, and **are
+guaranteed to not be** elided or **reordered by the compiler across
+other volatile operations**.
+#+end_quote
+
+This is a substantially different guarantee than the
+ordering-constraints imposed by atomic operations: while atomics can
+establish a /happens-before relation/ between two parts of parallel
+threads in a program that affects a /global/ set of variables,
+ordering guarantees around volatile operations are constrained to only
+these operations. This makes sense for many use-cases of volatile
+operations. For instance, it may matter that an "interrupt clear" flag
+is written /before/ data is removed from a receive queue, but
+generally a peripheral should not be affected by other, independent
+memory accesses outside of its MMIO address space.
+
+However, certain peripherals break this assumption, most prominently
+ones that perform "Direct Memory Access" (DMA). A DMA-capable
+peripheral not only has control over its MMIO registers, but can also
+access (a subset of) the same RAM that is accessible to the CPU. These
+devices can read from or write to a specified memory region after
+being instructed to do so through a write to a MMIO register.
+
+This interaction between volatile accesses to an MMIO register and
+access to regular memory can create issues in the face of compiler
+optimations, or hardware-reordering of memory accesses, though. For
+example, given that the compiler does not make promises of the order
+of volatile operations relative to other memory accesses, it could
+happen that a peripheral could read from a buffer prepared by the CPU,
+when those buffer writes have not actually been comitted to memory
+yet.
+
+For this reason, we need to establish an additional, explicit ordering
+guarantee between other memory operations and these volatile
+accesses. Rust provides us the [[https://doc.rust-lang.org/stable/std/sync/atomic/fn.fence.html][src_rust[:exports
+code]{std::sync::atomic::fence}]] function to do just that. This
+function works similar to atomic operations and takes an
+src_rust[:exports code]{Ordering} argument. It will ensure that
+compiler optimizations respect the requested ordering guarantees and,
+if applicable, will also emit a CPU instruction that prevents
+hardware-based reordering of accesses beyond this point.
+
+Thus, when kicking off an operation that /reads/ from memory written
+by the CPU, we must use a src_rust[:exports code]{fence} operation
+with an src_rust[:exports code]{Ordering::Release} argument, to ensure
+that all writes become visible to another thread (or the hardware)
+that is synchronizing with our current thread. For reading data that
+the hardware has written into memory, we must use a src_rust[:exports
+code]{fence} operation with src_rust[:exports code]{Ordering::Acquire}
+instead. This ensures that we are seeing all changes since the point
+at which the hardware has informed us that an operation has finished
+(e.g., through a volatile read or interrupt).
+
+It should be noted that this relies on a fairly liberal interpretation
+of the following comment in src_rust[:exports
+code]{std::sync::atomic::fence}'s documentation:
+#+begin_quote
+A fence ‘A’ which has (at least) Release ordering semantics,
+synchronizes with a fence ‘B’ with (at least) Acquire semantics, if
+and only if there exist operations X and Y, both operating on some
+atomic object ‘M’ such that A is sequenced before X, Y is sequenced
+before B and Y observes the change to M. This provides a
+happens-before dependence between A and B.
+#+end_quote
+Here, we assume that the volatile reads and writes to MMIO registers
+count as operations that are operating on an /atomic object/. However,
+this seems to be a fair assumption to make on many hardware platforms
+in practice, and clarifying it likely also ties in to the
+considerations of the previous subsection.
+
+# - Interactions of UnsafeCell's =dereferenceable= attribute on volatile
+#   (changing) memory, e.g. for DMA or MMIO. Safe? How does this
+#   interact with Rust's abstract machine model?
+#   - Is this meaningfully different than threads?
+#   - How do you "avoid race conditions" as per =UnsafeCell='s
+#     documentation on this memory?
 
 * Footnotes :noexport:
 
