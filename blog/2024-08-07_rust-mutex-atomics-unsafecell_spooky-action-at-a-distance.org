@@ -38,7 +38,7 @@ A defining feature of Rust is its concept of /aliasing ⊕
 mutability/. This rule governs that at any time a value may either
 have multiple /immutable/ shared references, or a single /mutable/
 unique reference, and never both. While this greatly helps in
-producing, fast, efficient and correct code, it can be limiting. To
+producing fast, efficient and correct code, it can be limiting. To
 this end, Rust also features types that bend these rules, like
 src_rust[:exports code]{Mutex}, src_rust[:exports code]{RwLock},
 src_rust[:exports code]{Cell}, src_rust[:exports code]{RefCell}, and
@@ -104,7 +104,7 @@ that causes the Rust compiler to provide these semantics for the objects
 contained therein, it is more commonly used in safe wrappers such as
 src_rust[:exports code]{Cell} or src_rust[:exports code]{RefCell}.
 
-It is important to note that despite allowing interior mutablity,
+It is important to note that despite allowing interior mutability,
 src_rust[:exports code]{UnsafeCell} does not perform any synchronization on its
 own—one of the key distinguishing features of other types like src_rust[:exports
 code]{Mutex}. This restriction is visible by the fact that src_rust[:exports
@@ -125,7 +125,7 @@ all other accesses (or use atomics).
 
 OK, so to safely use an src_rust[:exports code]{UnsafeCell} between threads we
 will need to perform synchronization ourselves (establish a /happens-before
-relation/), or use atomics. As the above is building an atomic usize primitive,
+relation/) or use atomics. As the above is building an atomic usize primitive,
 we should thus be safe to tell the Rust compiler that our own src_rust[:exports
 code]{AtomicUsize} type is indeed both src_rust[:exports code]{Send} (can be
 moved between threads) and src_rust[:exports code]{Sync} (can be concurrently
@@ -143,8 +143,8 @@ atomic, the CPU won’t let us observe the value in the middle of an
 operation. Therefore, to load the value, we can simply return the current value
 of the UnsafeCell.
 #+end_quote
-For writing, William Henderson's version is using an inline assembly block that
-performs a locking store operation.
+For writing, William Henderson's version uses an AMD64 inline assembly
+instruction that performs a locking store operation.
 
 * Optimized to the Breaking Point
 
@@ -215,7 +215,7 @@ it may never change. If it was =0= when entering this function, because the
 function never modifies it, the compiler thus assumes that it will always stay
 at this value and never return from the src_rust[:exports code]{while}
 loop. This seems quite counter-intuitive given that the entire purpose behind
-src_rust[:exports code]{UnsafeCell} is to /allow/ interior mutablity. Thus, Rust
+src_rust[:exports code]{UnsafeCell} is to /allow/ interior mutability. Thus, Rust
 should need to expect that its underlying value changes even though we only hold
 an immutable (src_rust[:exports code]{&}) reference to it.
 
@@ -334,7 +334,7 @@ about what src_rust[:exports code]{black_box} could do.
 #+end_quote
 
 In this case, one of the possible effects that the compiler assumes
-src_rust[:exports code]{black_box} to have is perfoming an src_rust[:exports
+src_rust[:exports code]{black_box} to have is performing an src_rust[:exports
 code]{a.set(1)} operation. Hence it makes sense that src_rust[:exports
 code]{black_box} would force the compiler to re-read the src_rust[:exports
 code]{Cell}'s contents on the second call to src_rust[:exports code]{a.get()}.
@@ -371,8 +371,8 @@ code]{UnsafeCell}:
    accessible, it may make assumptions about an src_rust[:exports
    code]{UnsafeCell}'s contents not changing.
 
-2. Across any code path where Rust does not have this degree of visiblity (e.g.,
-   by calling into an opaque function, foreign function, or invoking a
+2. Across any code path where Rust does not have this degree of visibility
+   (e.g., by calling into an opaque function, foreign function, or invoking a
    src_rust[:exports code]{black_box}), it instead assumes that an
    src_rust[:exports code]{UnsafeCell}'s contents may have changed.
 
@@ -474,7 +474,7 @@ same UnsafeCell, then any writes must have a proper happens-before relation to
 all other accesses (or use atomics).
 #+end_quote
 
-It seems that the phrasing here is unfortunate in two regards:
+The phrasing here is unfortunate in two regards:
 - When we don't have a proper /happens-before relation/ (we'll get to that
   later), we need to use atomic operations for concurrent accesses on the
   src_rust[:exports code]{UnsafeCell}'s memory instead. However, clearly these
@@ -557,7 +557,7 @@ This means that Rust compiler intrinsics such as src_rust[:exports
 code]{intrinsics::atomic_load_relaxed} implicitly tell the compiler that code
 may use these atomic operations to synchronize with other concurrent
 code. Without these operations, Rust simply assumes that variables are not
-concurrently modified by other code, and is thus allowed to reason about them as
+concurrently modified by other code and is thus allowed to reason about them as
 if they aren't shared with other threads at all. Ultimately, this is safe as
 src_rust[:exports code]{UnsafeCell} is not src_rust[:exports code]{Sync}—by
 default, it cannot be shared between threads. And our custom src_rust[:exports
@@ -699,7 +699,7 @@ operation seems to be sufficient to synchronize accesses to a Rust
 src_rust[:exports code]{UnsafeCell} across threads.
 
 ...But wait! Our Mutex holds not one, but *two* src_rust[:exports
-code]{UnsafeCell}s interally. And we only used a src_rust[:exports
+code]{UnsafeCell}s internally. And we only used a src_rust[:exports
 code]{compare_exchange} on /one/ of the src_rust[:exports
 code]{UnsafeCell}s, namely the one holding information on whether the
 src_rust[:exports code]{Mutex} is locked or not. The other
@@ -737,7 +737,7 @@ assumptions and program optimizations, and in particular, limit the
 flexibility that a compiler has to re-order or elide operations that
 access memory.
 
-Revisting the example of our src_rust[:exports code]{Mutex}
+Revisiting the example of our src_rust[:exports code]{Mutex}
 implementation ([[https://play.rust-lang.org/?version=stable&mode=release&edition=2021&gist=ec5d5af6ea6a25ebef67e40914af67a6][Playground]]), there are two basic guarantees we need to
 maintain:
 1. We must never give out concurrent access to the src_rust[:exports
@@ -768,11 +768,11 @@ with other threads.
 Concurrency and synchronization are tricky subjects on their own. As
 we have seen above, things get even more nuanced when we throw Rust's
 concepts around borrowing, references, and its compiler optimizations
-into the mix. While many of these basic concepts were familar to me
+into the mix. While many of these basic concepts were familiar to me
 from both practical experience and theoretical computer science
 lectures, seeing how they play in to the actual implementation of
-concurrency primitives in a high-level language such as Rust was still
-interesting (and at times surprising) to me. I hope that this post can
+concurrency primitives in a high-level language such as Rust is still
+interesting (and at times surprising). I hope that this post can
 demystify some of the /"magic"/ behavior and optimizations you may
 observe around these constructs.
 
@@ -820,7 +820,7 @@ so-called "Memory Mapped I/O" (MMIO).
 In general, these peripherals run in parallel to the CPU—thus, it may
 be reasonable to effectively model them to be separate threads in your
 system. They "share" certain MMIO memory addresses with your program
-and may, at times, even be able to write to arbitary regular program
+and may, at times, even be able to write to arbitrary regular program
 memory too. Similar to threads, they should follow a contract for
 /when/ it is safe to read from or write to certain memory.
 
@@ -885,7 +885,7 @@ code guidelines]]) and is the motivation for this post.
 
 src_rust[:exports code]{VolatileCell}'s purpose is to make a
 developer's life easier: peripherals that expose an MMIO-based
-interface typically do so by having their registers layed out such
+interface typically do so by having their registers laid out such
 that it can be modeled like a =#[repr(C)]= struct, like [[https://github.com/tock/tock/blob/dee00dc23d32dd8116cb88b705ffaba11e950e72/chips/sifive/src/uart.rs#L21-L37][this]]:
 #+begin_src rust -n
 #[repr(C)]
@@ -959,12 +959,12 @@ pub struct UartRegisters {
 #+end_src
 Neat.
 
-** src_rust[:exports code]{VolatileCell} and =dereferencable=
+** src_rust[:exports code]{VolatileCell} and =dereferenceable=
 
 Unfortunately, src_rust[:exports code]{VolatileCell} has issues. I
 encourage you to read [[https://github.com/rust-lang/unsafe-code-guidelines/issues/411][the discussion on the Rust unsafe code]]
 guidelines, but in short, this problem comes from the fact that all
-references in Rust are marked as =dereferencable= by default.
+references in Rust are marked as =dereferenceable= by default.
 
 This dereferenceability means that the compiler is free to, for
 instance as part of certain optimizations, insert a /spurious read/ to
@@ -1061,11 +1061,11 @@ being instructed to do so through a write to a MMIO register.
 
 This interaction between volatile accesses to an MMIO register and
 access to regular memory can create issues in the face of compiler
-optimations, or hardware-reordering of memory accesses, though. For
+optimizations, or hardware-reordering of memory accesses, though. For
 example, given that the compiler does not make promises of the order
 of volatile operations relative to other memory accesses, it could
 happen that a peripheral could read from a buffer prepared by the CPU,
-when those buffer writes have not actually been comitted to memory
+when those buffer writes have not actually been committed to memory
 yet.
 
 For this reason, we need to establish an additional, explicit ordering
