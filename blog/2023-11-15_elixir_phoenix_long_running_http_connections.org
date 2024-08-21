@@ -40,6 +40,9 @@ timeout.
 #+TOC: headlines 1
 
 * Minimal Server-Sent Events Endpoint Example
+:PROPERTIES:
+:CUSTOM_ID: minimal-server-sent-events-endpoint-example
+:END:
 
 We start by looking at the Server-Sent Events endpoint example proposed by
 [[https://code.krister.ee/server-sent-events-with-elixir/][Krister Virsaar]]. First, declare a new =sse= MIME-type in your Phoenix
@@ -118,6 +121,7 @@ stream data to the client.
 When we issue a request to this endpoint (e.g. via cURL), we see the following
 log output:
 
+#+name: get-sse-log-output
 #+BEGIN_EXAMPLE
 [info] GET /sse
 [debug] Processing with MyAppWeb.MySSEController.sse_req/2
@@ -130,6 +134,7 @@ Great, our request handler matched and we're ready to stream (no) messages to
 the client. However, when waiting a bit, our cURL process exits with an error
 =(18) transfer closed with outstanding read data remaining=. That's not good...
 
+#+name: curl-sse-timeout
 #+BEGIN_EXAMPLE
 > time curl -v http://localhost:4000/sse
 ,*   Trying 127.0.0.1:4000...
@@ -160,6 +165,9 @@ Executed in   59.44 secs      fish           external
 #+END_EXAMPLE
 
 * Implementing SSE Keep-Alive Messages
+:PROPERTIES:
+:CUSTOM_ID: implementing-sse-keep-alive-messages
+:END:
 
 It's common that web-servers, reverse-proxies and other middle-boxes can
 terminate long-running and idle HTTP / TCP connections. Thus it is recommended
@@ -222,6 +230,7 @@ just a colon. Thus we extended our request handler to
 Unfortunately, we can see that this is not yet sufficient to stop Cowboy
 (Phoenix's underlying HTTP server) to not terminate our connection:
 
+#+name: curl-sse-timeout-with-keepalive
 #+BEGIN_EXAMPLE
 > time curl -v http://localhost:4000/sse
 ,*   Trying 127.0.0.1:4000...
@@ -258,6 +267,9 @@ Executed in   59.44 secs      fish           external
 #+END_EXAMPLE
 
 * Disabling Cowboy's Idle Timeout for a Single Connection
+:PROPERTIES:
+:CUSTOM_ID: disabling-cowboys-idle-timeout-for-a-single-connection
+:END:
 
 Even with our keep-alive messages, Cowboy still terminates the connection after
 60 seconds. This is because Cowboy determines a connection to be active solely
@@ -345,6 +357,7 @@ code]{:infinity}:
 
 And re-running our cURL request now gives us:
 
+#+name: curl-sse-no-timeout
 #+BEGIN_EXAMPLE
 > time curl -v http://localhost:4000/sse
 ,*   Trying 127.0.0.1:4000...

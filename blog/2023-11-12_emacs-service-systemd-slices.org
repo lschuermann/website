@@ -40,7 +40,10 @@ applications & shells from within Emacs in their own scopes in
 
 #+TOC: headlines 1
 
-* Emacs as a systemd user unit
+* Emacs As A Systemd User Unit
+:PROPERTIES:
+:CUSTOM_ID: emacs-as-a-systemd-user-unit
+:END:
 
 To run an Emacs daemon as a systemd user-unit on a NixOS system, it's
 as easy setting the following configuration option:
@@ -51,6 +54,7 @@ as easy setting the following configuration option:
 
 This will generate a systemd user-unit globally, for all users:
 
+#+name: systemd-user-status-emacs-service
 #+BEGIN_EXAMPLE
 > systemctl --user status emacs.service
 ● emacs.service - Emacs: the extensible, self-documenting text editor
@@ -62,12 +66,16 @@ On non-NixOS systems you can manually create a systemd user-unit that
 simply starts =emacs --daemon= with =Type=forking= to achieve the same
 result.
 
-* Systemd /slices/, /scopes/ and /services/
+* Systemd /slices/, /scopes/ And /services/
+:PROPERTIES:
+:CUSTOM_ID: systemd-slices-scopes-and-services
+:END:
 
 However, when we use this daemon for a while and spawn some
 subprocesses, we can observe a systemd supervision tree such as the
 following:
 
+#+name: systemctl-user-status-all-app-slice
 #+BEGIN_EXAMPLE
 > systemctl --user status
 ● caesium
@@ -143,12 +151,16 @@ should
   and that =systemd-oomd= can apply more fine-grained out-of-memory
   policies.
 
-* Moving =emacs.service= into =session.slice=
+* Moving =emacs.service= Into =session.slice=
+:PROPERTIES:
+:CUSTOM_ID: moving-emacs-service-into-session-slice
+:END:
 
 To run =emacs.service= as part of the =session.slice= supervision
 tree, we simply need to set the following option in the service's
 =[Unit]= section:
 
+#+name: emacs-service-session-slice
 #+BEGIN_EXAMPLE
 Slice=session.slice
 #+END_EXAMPLE
@@ -166,6 +178,7 @@ Reloading the systemd user daemon (=systemctl --user daemon-reload=)
 and restarting the =emacs.service= should now spawn it under the
 =session.slice=, as intended:
 
+#+name: systemctl-user-status-emacs-session-slice
 #+BEGIN_EXAMPLE
 > systemctl --user status
 ● silicon
@@ -181,11 +194,15 @@ However, all subprocesses launched from within Emacs are still
 attached to =emacs.service=, and thus now managed in the
 =session.slice=.
 
-* Running Emacs subprocesses under =app.slice= scopes
+* Running Emacs Subprocesses Under =app.slice= Scopes
+:PROPERTIES:
+:CUSTOM_ID: running-emacs-subprocesses-under-app-slice-scopes
+:END:
 
 In general, we can instruct systemd to run a process under a new scope
 using the =systemd-run= command:
 
+#+name: systemd-run-user-scope-sleep
 #+BEGIN_EXAMPLE
 > systemd-run --user --scope -- sleep 60
 Running scope as unit: run-r243444bafda04cc08f72aa350fa7175c.scope
@@ -194,6 +211,7 @@ Running scope as unit: run-r243444bafda04cc08f72aa350fa7175c.scope
 This will create a new anonymous scope and launch the supplied command
 within it:
 
+#+name: systemctl-user-status-systemd-run-user-scope-sleep
 #+BEGIN_EXAMPLE
 > systemctl --user status
 ● silicon
@@ -219,7 +237,10 @@ plethora of other (potentially memory-intensive) applications such as
 through Magit, etc. If you know of a more general approach to run
 subprocesses in their own scopes, please let me know!
 
-** Running EXWM applications in their own scopes
+** Running EXWM Applications In Their Own Scopes
+:PROPERTIES:
+:CUSTOM_ID: running-exwm-applications-in-their-own-scopes
+:END:
 
 EXWM defines the =s-&= key-binding by default to spawn an application
 without creating a buffer for its output. We can simply override the
@@ -237,7 +258,10 @@ definition of this key-binding to start the passed commands through
       (format "systemd-run -q --user --slice=app.slice --scope -- %s" command))))
 #+END_SRC
 
-** Running vterm shell processes in systemd scopes
+** Running Vterm Shell Processes In Systemd Scopes
+:PROPERTIES:
+:CUSTOM_ID: running-vterm-shell-processes-in-systemd-scopes
+:END:
 
 vterm-mode supports the =vterm-shell= customization, defaulting to the
 contents of the =shell-file-name= variable. We can simply customize

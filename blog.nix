@@ -82,6 +82,9 @@ let
             (setq org-html-htmlize-font-prefix \"org-\")
             (setq org-html-htmlize-output-type 'inline-css)
 
+            ; Static headline labels in articles
+            (setq org-html-prefer-user-labels 't)
+
             (setq org-confirm-babel-evaluate nil)
 
             (dolist (file command-line-args-left)
@@ -92,6 +95,14 @@ let
                 (org-html-export-to-html nil nil nil 't))))
         " "./${filename}"
         cp "./$(basename "${filename}" .org).html" $out
+
+        # Sanity check: we don't want to produce any elements that don't have a
+        # stable HTML `id` property. This is a quite dirty hack -- I'll replace
+        # when it breaks with false positives:
+        if grep -E '^.*id="org[[:alnum:]]+".*$' "$out"; then
+          echo "Post ${filename} generates elements with non-static org ids!" >&2
+          exit 1
+        fi
       '';
 
       # TODO: this selector is probably called something different.

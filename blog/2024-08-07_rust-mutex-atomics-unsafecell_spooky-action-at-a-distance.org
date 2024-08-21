@@ -53,6 +53,10 @@ surprising /global/ impact of synchronization primitives.
 #+TOC: headlines 1
 
 * Atomics From Scratch
+:PROPERTIES:
+:CUSTOM_ID: atomics-from-scratch
+:END:
+
 
 William Henderson's blog features a great article on how to [[https://whenderson.dev/blog/implementing-atomics-in-rust/][implement
 Rust's atomic types]] (and [[https://whenderson.dev/blog/rust-mutexes/][ultimately even Mutexes]]) from scratch. I
@@ -147,6 +151,9 @@ For writing, William Henderson's version uses an AMD64 inline assembly
 instruction that performs a locking store operation.
 
 * Optimized to the Breaking Point
+:PROPERTIES:
+:CUSTOM_ID: optimized-to-the-breaking-point
+:END:
 
 With our src_rust[:exports code]{AtomicUsize} implemented, let's write a basic
 reader / writer test case: we spawn a thread that spin-waits
@@ -241,6 +248,9 @@ Looking at the generated assembly, Rust turns this function into a simple
 #+end_src
 
 * src_rust[:exports code]{UnsafeCell} Revisited
+:PROPERTIES:
+:CUSTOM_ID: unsafecell-revisited
+:END:
 
 With the above behavior, one might wonder what an src_rust[:exports
 code]{UnsafeCell} is actually useful for? We cannot—by default—share it between
@@ -394,6 +404,9 @@ code]{reader} thread, it determines that its value may never be modified within
 this function; hence reading its value once ought to be sufficient.
 
 * Concurrency and src_rust[:exports code]{UnsafeCell}
+:PROPERTIES:
+:CUSTOM_ID: concurrency-and-unsafecell
+:END:
 
 This raises the question: given that src_rust[:exports code]{UnsafeCell} does
 not deliver our desired semantics, how are src_rust[:exports code]{AtomicUsize},
@@ -568,6 +581,9 @@ memory. This is regardless of whether or not the generated machine code uses
 atomic instructions.
 
 * Spooky Action at a Distance?
+:PROPERTIES:
+:CUSTOM_ID: spooky-action-at-a-distance
+:END:
 
 Finally, let's look at how src_rust[:exports code]{Mutex} is implemented on top
 of src_rust[:exports code]{UnsafeCell}. The src_rust[:exports code]{Mutex} type
@@ -764,6 +780,9 @@ guarantees for *all*, global variables that may potentially be shared
 with other threads.
 
 * Conclusion
+:PROPERTIES:
+:CUSTOM_ID: conclusion
+:END:
 
 Concurrency and synchronization are tricky subjects on their own. As
 we have seen above, things get even more nuanced when we throw Rust's
@@ -798,6 +817,9 @@ compiler optimizations, and these effects do not manifest in Rust's
 type system at all.
 
 * Aside: What About src_rust[:exports code]{VolatileCell}?
+:PROPERTIES:
+:CUSTOM_ID: aside-what-about-volatilecell
+:END:
 
 Next to these concurrency primitives that Rust ships, some users
 decide to develop their own. There is [[https://crates.io/crates/parking_lot][=parking_lot=]], a crate with more
@@ -882,6 +904,9 @@ fact, its soundness is subject to debate (e.g., [[https://github.com/rust-lang/u
 code guidelines]]) and is the motivation for this post.
 
 ** Introducing src_rust[:exports code]{VolatileCell}
+:PROPERTIES:
+:CUSTOM_ID: introducing-volatilecell
+:END:
 
 src_rust[:exports code]{VolatileCell}'s purpose is to make a
 developer's life easier: peripherals that expose an MMIO-based
@@ -960,6 +985,9 @@ pub struct UartRegisters {
 Neat.
 
 ** src_rust[:exports code]{VolatileCell} and =dereferenceable=
+:PROPERTIES:
+:CUSTOM_ID: volatilecell-and-dereferenceable
+:END:
 
 Unfortunately, src_rust[:exports code]{VolatileCell} has issues. I
 encourage you to read [[https://github.com/rust-lang/unsafe-code-guidelines/issues/411][the discussion on the Rust unsafe code]]
@@ -978,6 +1006,9 @@ volatile memory is through volatile pointer operations, and never
 creating a Rust reference to the memory in question.
 
 ** src_rust[:exports code]{VolatileCell} and Concurrency
+:PROPERTIES:
+:CUSTOM_ID: volatilecell-and-concurrency
+:END:
 
 Another interesting concern is that of concurrency. As peripherals can
 be modeled as to behave effectively like another thread, we should
@@ -1030,6 +1061,9 @@ would be great if the Rust documentation could provide more guidance
 for these questions.
 
 ** src_rust[:exports code]{VolatileCell} and Happens-Before Relations
+:PROPERTIES:
+:CUSTOM_ID: volatilecell-and-happens-before-relations
+:END:
 
 Finally, one important aspect to consider is that of volatile
 operations and their interactions with regular memory accesses.
