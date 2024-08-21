@@ -646,7 +646,7 @@ code]{futex::Mutex::lock}:
 Essentially, the =futex= implementation uses an atomic integer shared between
 threads to record the current lock state of the mutex. When attempting to lock
 the mutex, it uses a /compare-exchange/ operation to atomically write a value of
-=1= (/locked/) into this integer, if any only if the current value of the atomic
+=1= (/locked/) into this integer, if and only if the current value of the atomic
 integer currently contains a value of =0= (/unlocked/). If the mutex is
 currently locked, it asks the operating system to inform it when the lock is
 free again (src_rust[:exports code]{self.lock_contended()}). See [[https://eli.thegreenplace.net/2018/basics-of-futexes/][this excellent
@@ -705,7 +705,7 @@ code]{UnsafeCell}s, namely the one holding information on whether the
 src_rust[:exports code]{Mutex} is locked or not. The other
 src_rust[:exports code]{UnsafeCell} holding the actual data that the
 mutex is supposed to be synchronized never has any atomic or locking
-instructions used on it. In fact, we're _still_ using the exact some
+instructions used on it. In fact, we're _still_ using the exact same
 problematic code snippet (src_rust[:exports code]{*self.inner.get()})
 that led to problems with our src_rust[:exports code]{AtomicUsize} in
 the first place!
