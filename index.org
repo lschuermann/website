@@ -1,0 +1,179 @@
+#+TITLE: Index Page
+
+#+BEGIN_EXPORT nix
+{ content, footerContent, css, source_path, ... }:
+{ util, pages, ... }@site_args:
+  util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
+    site_args // {
+      # For main pages, just provide a simple lower-case name of the page as the
+      # site ID
+      pageId = "index";
+
+      # index.html will be made available as "/"
+      pageUrl = "/";
+      filePath = "/index.html";
+
+      pageCss = css;
+
+      inherit footerContent;
+      content = util.template content {
+        publications = pages.publications.export;
+      };
+    }
+  )
+#+END_EXPORT
+
+#+NAME: content
+#+BEGIN_EXPORT html
+<h1 id="greeting">Hi, I'm Leon!</h1>
+<p id="greeting-cntd">I'm a PhD student in Computer Science at Princeton
+University, advised by <a href="https://www.amitlevy.com/">Amit Levy</a> in
+the <a href="https://sns.cs.princeton.edu/">SNS Research Group</a>. I build
+software. Sometimes hardware. And occasionally other things.</p>
+
+<section>
+  <h2 id="projects" class="main-secheader">Here are some things I've worked on:</h2>
+
+  <ul>
+    <li>
+      <div class="project-img-container">
+        <a class="project-img-link" href="https://tockos.org">
+          <img class="project-img" src="/assets/img/tock.svg" alt="Tock OS logo">
+        </a>
+        <a class="project-img-fn fake-noteref"></a>
+      </div>
+      <p class="project-desc">
+        In my free time, I like to contribute to
+        the <a href="https://tockos.org">Tock embedded operating
+        system</a>. It features quite a few interesting concepts and targets
+        microcontrollers with upwards of 64kB RAM. It works on ARM Cortex-M
+        and RISC-V platforms. You should go check it out!
+      </p>
+    </li>
+
+    <li>
+      <div class="project-img-container">
+        <a class="project-img-link" href="https://github.com/enjoy-digital/litex">
+          <img class="project-img" src="/assets/img/litex.png" alt="LiteX logo">
+        </a>
+        <a href="#fn-litexlogo" id="fnref-litexlogo" role="doc-noteref" class="project-img-fn"></a>
+      </div>
+      <p class="project-desc">
+        To develop FPGA designs I'm using
+        <a href="https://github.com/enjoy-digital/litex">LiteX</a>, a free
+        and open system-on-chip framework. Over the course of previous
+        projects, I helped integrate a 10 Gigabit Ethernet datapath in the
+        <a href="https://github.com/enjoy-digital/liteeth">LiteEth IP
+          core</a> and added support for XGMII-interfaced PHYs.
+      </p>
+    </li>
+
+    <li>
+      <div class="project-img-container">
+        <a class="project-img-link" href="https://nixos.org">
+          <img class="project-img" src="/assets/img/nixos.svg" alt="NixOS logo">
+        </a>
+        <a href="#fn-nixoslogo" id="fnref-nixoslogo" role="doc-noteref" class="project-img-fn"></a>
+      </div>
+      <p class="project-desc">
+        My Linux distribution of choice is NixOS. It's a great fit for
+        desktop and server systems alike! When I see that things are missing
+        or don't work, I occasionally send a pull request.
+      </p>
+    </li>
+  </ul>
+
+  <p>
+    Whenever there's time, I like to tinker with electronics, networking
+    hardware and servers. I'm especially interested in applications of the
+    Rust programming language, for example in embedded systems. My main area
+    of interest is developing secure, interconnected embedded systems.
+  </p>
+</section>
+
+<section>
+  <h2 id="news" class="main-secheader">News:</h2>
+
+  <ul>
+    <li>
+      <p>
+        Oct 2023: I am presenting <a href="${
+	  ctx.publications.publicationLink "kisv23-encapsulated-functions"
+	}">
+	  <b><i>Encapsulated Functions</i></b>
+	</a> at the <a href="https://kisv-workshop.github.io/program/">${
+	  ctx.publications.venues.KISV23.name}</a>, co-located with
+	<a href="https://sosp2023.mpi-sws.org/">SOSP'23</a> in Koblenz, Germany.
+	In this work we explore safety issues around the Rust Foreign Function
+	Interface (FFI), and how we can mitigate them in the context of embedded
+	systems. I will also be presenting a
+	<a href="${
+	  ctx.publications.publicationLink "sosp23-encapsulated-functions-poster"
+	}">poster</a> on this work.
+      </p>
+    </li>
+  </ul>
+</section>
+#+END_EXPORT
+
+#+NAME: footerContent
+#+BEGIN_EXPORT html
+<aside role="doc-footnote">
+  Footnotes:
+
+  <ol>
+    <li id="fn-litexlogo">
+      LiteX logo used under the
+      LiteX <a href="https://github.com/enjoy-digital/litex/blob/master/LICENSE">
+        two-clause BSD license</a>.<a role="doc-backlink"
+				      href="#fnref-litexlogo">↩</a>
+    </li>
+    <li id="fn-nixoslogo">
+      NixOS logo by Tim Cuthbertson used under
+      the <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC
+        BY-SA 4.0 license</a>.<a role="doc-backlink"
+				 href="#fnref-nixoslogo">↩</a>
+    </li>
+  </ol>
+
+  <p>
+    Feel free to send me a PGP encrypted email using
+    <a href="/files/2022-07-03_59D593461D9FF82BC1D2A579C7FF8B0BACB5F9DB.asc"
+       >my key</a>.
+  </p>
+</aside>
+#+END_EXPORT
+
+#+BEGIN_EXPORT css
+/* Styling infrastructure for the project list. This is reasonably complex
+   as it renders text and an image in a list, and the image can have a
+   hyperlink and a footnote attached to it. */
+div.project-img-container {
+  margin: 0 0 0.5em 0.7em;
+  float: right;
+}
+
+a.project-img-link {
+  text-decoration: none;
+}
+
+a.project-img-fn {
+  padding-left: 0;
+  vertical-align: top;
+}
+
+img.project-img {
+  width: 140px;
+}
+
+@media only screen and (max-width: 600px) {
+  img.project-img {
+    width: 100px;
+  }
+}
+#+END_EXPORT
+
+#+NAME: trailer
+#+BEGIN_EXPORT
+#  LocalWords:  microcontrollers tockos FPGA datapath
+#+END_EXPORT
