@@ -20,20 +20,39 @@
     "talk" = "Talk";
   };
 
+  institutions = {
+    princeton = {
+      institution = "Princeton University";
+      country = "USA";
+    };
+
+    uni_stuttgart = {
+      institution = "University of Stuttgart";
+      country = "Germany";
+    };
+
+    zerorisc = {
+      institution = "zeroRISC Inc.";
+      country = "USA";
+    };
+
+    ucsd = {
+      institution = "University of Californina, San Diego";
+      country = "USA";
+    };
+  };
+
   authors = {
     me = {
       first = "Leon";
       last = "Schuermann";
 
       affiliations = {
-        princeton = {
-          institution = "Princeton University";
-          country = "USA";
-        };
+        inherit (institutions) princeton;
 
-        uni_stuttgart = {
-          institution = "University of Stuttgart";
-          country = "Germany";
+        uni_stuttgart = institutions.uni_stuttgart // {
+          from = "2019-10";
+          to = "2022-04";
         };
       };
     };
@@ -42,9 +61,17 @@
       first = "Amit";
       last = "Levy";
 
-      affiliations.princeton = {
-        institution = "Princeton University";
-        country = "USA";
+      affiliations = {
+        inherit (institutions) princeton;
+      };
+    };
+
+    anthony_tarbinian = {
+      first = "Anthony";
+      last = "Tarbinian";
+
+      affiliations = {
+        inherit (institutions) ucsd;
       };
     };
 
@@ -52,9 +79,17 @@
       first = "Arun";
       last = "Thomas";
 
-      affiliations.zerorisc = {
-        institution = "zeroRISC Inc.";
-        country = "USA";
+      affiliations = {
+        inherit (institutions) zerorisc;
+      };
+    };
+
+    gongqi_huang = {
+      first = "Gongqi";
+      last = "Huang";
+
+      affiliations = {
+        inherit (institutions) princeton;
       };
     };
 
@@ -62,9 +97,8 @@
       first = "Frank";
       last = "Duerr";
 
-      affiliations.uni_stuttgart = {
-        institution = "University of Stuttgart";
-        country = "Germany";
+      affiliations = {
+        inherit (institutions) uni_stuttgart;
       };
     };
 
@@ -72,9 +106,8 @@
       first = "Jack";
       last = "Toubes";
 
-      affiliations.princeton = {
-        institution = "Princeton University";
-        country = "USA";
+      affiliations = {
+        inherit (institutions) princeton;
       };
     };
 
@@ -82,9 +115,26 @@
       first = "Mae";
       last = "Milano";
 
-      affiliations.princeton = {
-        institution = "Princeton University";
-        country = "USA";
+      affiliations = {
+        inherit (institutions) princeton;
+      };
+    };
+
+    pat_pannuto = {
+      first = "Pat";
+      last = "Pannuto";
+
+      affiliations = {
+        inherit (institutions) ucsd;
+      };
+    };
+
+    samir_rashid = {
+      first = "Samir";
+      last = "Rashid";
+
+      affiliations = {
+        inherit (institutions) ucsd;
       };
     };
 
@@ -92,15 +142,29 @@
       first = "Tyler";
       last = "Potyondy";
 
-      affiliations.ucsd = {
-        institution = "University of California, San Diego";
-        country = "USA";
+      affiliations = {
+        inherit (institutions) ucsd;
       };
     };
-
   };
 
   venues = {
+    "SPICES24" = {
+      type = "workshop";
+      abbrev = "SPICES 2024";
+      name = "The 3rd Workshop on Security and Privacy in Connected Embedded Systems";
+      website = "https://www.tii.ae/workshop/spices";
+      remark = "Co-located with EWSN 2024";
+    };
+
+    "KISV24" = {
+      type = "workshop";
+      abbrev = "KISV '24";
+      name = "2nd Workshop on Kernel Isolation, Safety and Verification";
+      website = "https://kisv-workshop.github.io/";
+      remark = "Co-located with SOSP '24";
+    };
+
     "SOSP23" = {
       type = "conference";
       abbrev = "SOSP '23";
@@ -132,6 +196,40 @@
   };
 
   pubs = {
+    "spices24-tabula-rasa" = {
+      date = "2024-12-10";
+      type = "paper";
+      venue = "SPICES24";
+
+      title =
+        "Tabula Rasa: Starting Safe Stays Safe";
+      authors = [
+        [ "tyler_potyondy" "ucsd" ]
+        [ "samir_rashid" "ucsd" ]
+        [ "me" "princeton" ]
+        [ "anthony_tarbinian" "ucsd" ]
+        [ "pat_pannuto" "ucsd" ]
+      ];
+
+      pdf = "https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf";
+    };
+
+    "kisv24-bridge" = {
+      date = "2024-11-03";
+      type = "paper";
+      venue = "KISV24";
+
+      title =
+        "Bridge: A Leak-Free Hardware-Software Architecture for Parallel Embedded Systems";
+      authors = [
+        [ "gongqi_huang" "princeton" ]
+        [ "me" "princeton" ]
+        [ "amit_levy" "princeton" ]
+      ];
+
+      doi = "10.1145/3698576.3698765";
+    };
+
     "rustnl2024-encapsulated-functions" = {
       date = "2024-05-07";
       type = "talk";
@@ -377,7 +475,7 @@ in [
       content = ''
         <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>.</p>
 
-        <h2>Peer Reviewed</h2>
+        <h2>Papers</h2>
         ${pubList (type: type == "paper") false}
 
         <h2>Talks</h2>
