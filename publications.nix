@@ -176,7 +176,7 @@
       type = "workshop";
       abbrev = "KISV '23";
       name = "1st Workshop on Kernel Isolation, Safety and Verification";
-      website = "https://kisv-workshop.github.io/";
+      website = "https://kisv-workshop.github.io/archive/2023/";
       remark = "Co-located with SOSP '23";
     };
 
