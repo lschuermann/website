@@ -20,7 +20,7 @@ let
 
   orgBlogEntry = basedir: filename:
     let
-      emacsPkg = pkgs.emacsWithPackages (epkgs: with epkgs; [
+      emacsPkg = pkgs.emacs.pkgs.withPackages (epkgs: with epkgs; [
         org use-package el-get color-theme-modern request buttercup htmlize
         org-contrib ox-twbs
 
