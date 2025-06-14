@@ -7,9 +7,10 @@
       throw "Publicaton with key ${key} not defined!";
 
   fontIcons = {
+    doi = [ "academicons" "&#xe97e;" ];
     link = [ "fontawesome4" "&#xf0c1;" ];
     pdf = [ "fontawesome4" "&#xf1c1;" ];
-    doi = [ "academicons" "&#xe97e;" ];
+    globe = [ "fontawesome4" "&#xf0ac;" ];
   };
 
   typeLabel = {
@@ -149,6 +150,14 @@
   };
 
   venues = {
+    "OSDI25" = {
+      type = "conference";
+      abbrev = "OSDI '25";
+      name =
+        "19th USENIX Symposium on Operating Systems Design and Implementation";
+      website = "https://www.usenix.org/conference/osdi25";
+    };
+
     "SPICES24" = {
       type = "workshop";
       abbrev = "SPICES 2024";
@@ -196,6 +205,24 @@
   };
 
   pubs = {
+    "osdi25-omniglot" = {
+      date = "2025-07-07";
+      type = "paper";
+      venue = "OSDI25";
+
+      title = "Building Bridges: Safe Interactions with Foreign Languages through Omniglot";
+      authors = [
+        [ "me" "princeton" ]
+        [ "jack_toubes" "princeton" ]
+        [ "tyler_potyondy" "ucsd" ]
+        [ "pat_pannuto" "ucsd" ]
+        [ "mae_milano" "princeton" ]
+        [ "amit_levy" "princeton" ]
+      ];
+
+      webpage = "https://www.usenix.org/conference/osdi25/presentation/schuermann";
+    };
+
     "spices24-tabula-rasa" = {
       date = "2024-12-10";
       type = "paper";
@@ -358,6 +385,11 @@
       fontIcon = fontIcons.pdf;
       url = pub.slides_pdf;
       label = "Slides (PDF)";
+    })
+    ++ (lib.optional (pub ? "webpage") {
+      fontIcon = fontIcons.globe;
+      url = pub.webpage;
+      label = "Webpage";
     })
     ++ (pub.extraLinks or []);
 
