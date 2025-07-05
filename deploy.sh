@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-set +e
-set +x
+set -Eeuox pipefail
 
 # Ensure repository is clean, and we're on the `public` branch:
 echo "Making sure that repository is clean & checked out the public branch..." >&2
