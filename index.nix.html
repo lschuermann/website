@@ -22,15 +22,34 @@
 
 ---content
 <h1 id="greeting">Hi, I'm Leon!</h1>
-<p id="greeting-cntd">I'm a PhD student in Computer Science at Princeton
-University, advised by <a href="https://www.amitlevy.com/">Amit Levy</a> in
-the <a href="https://sns.cs.princeton.edu/">SNS Research Group</a>. I build
-software. Sometimes hardware. And occasionally other things.</p>
+<p id="greeting-cntd">I'm a PhD candidate in Computer Science at Princeton
+University, advised by <a href="https://www.amitlevy.com/">Prof. Amit Levy</a>
+in the <a href="https://sns.cs.princeton.edu/">SNS Research Group</a>.</p> I
+also closely collaborate with <a href="https://www.languagesforsyste.ms/">Prof.
+Mae Milano</a>. My research focus lies on the intersection of secure and
+resource-constrained operating systems and programming languages.
+
+<p>
 
 <section>
   <h2 id="projects" class="main-secheader">Here are some things I've worked on:</h2>
 
   <ul>
+    <li>
+      <p class="project-desc">
+        In my current project, Omniglot, I explore how to enable safe
+        interactions between Rust and foreign programming languages. We have
+        developed a research prototype that is able to safely integrate
+	untrusted libraries into a Rust application, by combining memory
+	isolation with a set of static and runtime checks. The Omniglot research
+	paper is to set to appear in <a href="${
+          ctx.publications.publicationLink "osdi25-omniglot"
+        }">OSDI'25</a>. In the meantime, you can read <a
+          href="https://www.usenix.org/publications/loginonline/memory-safety-merely-table-stakes"
+	>the USENIX ;login: article about it</a>.
+      </p>
+    </li>
+
     <li>
       <div class="project-img-container">
         <a class="project-img-link" href="https://tockos.org">
@@ -39,11 +58,11 @@ software. Sometimes hardware. And occasionally other things.</p>
         <a class="project-img-fn fake-noteref"></a>
       </div>
       <p class="project-desc">
-        In my free time, I like to contribute to
-        the <a href="https://tockos.org">Tock embedded operating
-        system</a>. It features quite a few interesting concepts and targets
-        microcontrollers with upwards of 64kB RAM. It works on ARM Cortex-M
-        and RISC-V platforms. You should go check it out!
+        I am a core-team member of and contributor to
+        the <a href="https://tockos.org">Tock operating system</a>. It features
+        quite a few interesting concepts and targets microcontrollers with
+        upwards of 64kB RAM. It works on ARM Cortex-M and RISC-V platforms. You
+        should go check it out!
       </p>
     </li>
 
@@ -56,11 +75,14 @@ software. Sometimes hardware. And occasionally other things.</p>
       </div>
       <p class="project-desc">
         To develop FPGA designs I'm using
-        <a href="https://github.com/enjoy-digital/litex">LiteX</a>, a free
-        and open system-on-chip framework. Over the course of previous
-        projects, I helped integrate a 10 Gigabit Ethernet datapath in the
-        <a href="https://github.com/enjoy-digital/liteeth">LiteEth IP
-          core</a> and added support for XGMII-interfaced PHYs.
+        <a href="https://github.com/enjoy-digital/litex">LiteX</a>, a free and
+        open system-on-chip framework. Previously, I contributed a 10 Gigabit
+	Ethernet datapath in the
+        <a href="https://github.com/enjoy-digital/liteeth">LiteEth IP core</a>
+        and added support for XGMII-interfaced PHYs, which I have since
+	<a
+	  href="https://github.com/swabianinstruments/TimeTagger-FPGALink-Reference/blob/main/hdl/xgmii_axis_bridge_rx_64b.sv"
+	>ported to Verilog</a>.
       </p>
     </li>
 
@@ -72,9 +94,10 @@ software. Sometimes hardware. And occasionally other things.</p>
         <a href="#fn-nixoslogo" id="fnref-nixoslogo" role="doc-noteref" class="project-img-fn"></a>
       </div>
       <p class="project-desc">
-        My Linux distribution of choice is NixOS. It's a great fit for
-        desktop and server systems alike! When I see that things are missing
-        or don't work, I occasionally send a pull request.
+        Occasionally, I find myself hacking on my Linux distribution and package
+        manager of choice, NixOS / Nix. I built
+        its <code>security.sudo.extraRules</code> module, among other
+        infrastructure.
       </p>
     </li>
   </ul>
@@ -93,19 +116,23 @@ software. Sometimes hardware. And occasionally other things.</p>
   <ul>
     <li>
       <p>
-        Oct 2023: I am presenting <a href="${
-	  ctx.publications.publicationLink "kisv23-encapsulated-functions"
+        June 2025: We've published <a
+	  href="https://www.usenix.org/publications/loginonline/memory-safety-merely-table-stakes"
+	>a USENIX ;login: article on Omniglot</a> ahead of OSDI'25! It
+	introduces one of Omniglot's motivating examples and one of its
+	core mechanisms.
+      </p>
+
+      <p>
+        June 2025: I am presenting <a href="${
+	  ctx.publications.publicationLink "osdi25-omniglot"
 	}">
-	  <b><i>Encapsulated Functions</i></b>
-	</a> at the <a href="https://kisv-workshop.github.io/program/">${
-	  ctx.publications.venues.KISV23.name}</a>, co-located with
-	<a href="https://sosp2023.mpi-sws.org/">SOSP'23</a> in Koblenz, Germany.
-	In this work we explore safety issues around the Rust Foreign Function
-	Interface (FFI), and how we can mitigate them in the context of embedded
-	systems. I will also be presenting a
-	<a href="${
-	  ctx.publications.publicationLink "sosp23-encapsulated-functions-poster"
-	}">poster</a> on this work.
+	  <b><i>Omniglot</i></b>
+	</a> at the <a href="https://www.usenix.org/conference/osdi25">${
+	  ctx.publications.venues.OSDI25.name
+	}</a> in Boston, MA.
+	In our paper, we explore how Rust can safely interact with untrusted
+	foreign libraries. I will also be presenting a poster on this work.
       </p>
     </li>
   </ul>
