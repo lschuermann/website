@@ -220,6 +220,8 @@
         [ "amit_levy" "princeton" ]
       ];
 
+      selected = true;
+
       webpage = "https://www.usenix.org/conference/osdi25/presentation/schuermann";
     };
 
@@ -477,17 +479,17 @@
     "talk" = talkTemplate;
   })."${pub.type}" pub;
 
-  pubList = typeFilter: typeAnnotation: ''
+  pubList = pubFilter: addPubtypeAnnotation: generateAnchor: ''
     <ul>
       ${lib.concatStringsSep "\n" (
         builtins.map (pub:
-          ''<li><p id="${pub.name}">${
-            lib.optionalString typeAnnotation ''[${typeLabel."${pub.value.type}"}] ''
+          ''<li><p${lib.optionalString generateAnchor " id=\"${pub.name}\""}>${
+            lib.optionalString addPubtypeAnnotation ''[${typeLabel."${pub.value.type}"}] ''
           }${entryTemplate pub.value}</p></li>''
         ) (builtins.sort
           (a: b: a.value.date > b.value.date)
           (builtins.filter
-            (pub: typeFilter pub.value.type)
+            (pub: pubFilter pub.name pub.value)
             (lib.mapAttrsToList lib.nameValuePair pubs)
           )
         )
@@ -507,17 +509,20 @@ in [
       content = ''
         <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>.</p>
 
+        <h2>Selected Publications</h2>
+        ${pubList (_: p: (p.selected or false)) false false}
+
         <h2>Papers</h2>
-        ${pubList (type: type == "paper") false}
+        ${pubList (_: p: p.type == "paper") false true}
 
         <h2>Talks</h2>
-        ${pubList (type: type == "talk") false}
+        ${pubList (_: p: p.type == "talk") false true}
 
         <h2>Theses</h2>
-        ${pubList (type: type == "thesis") false}
+        ${pubList (_: p: p.type == "thesis") false true}
 
         <h2>Reports, Posters and Other Publications</h2>
-        ${pubList (type: !(builtins.elem type ["thesis" "paper" "talk"])) false}
+        ${pubList (_: p: !(builtins.elem p.type ["thesis" "paper" "talk"])) false true}
       '';
 
       export = {
@@ -542,7 +547,7 @@ in [
       content = ''
         <p>Switch to a <a href="${pages.publications.meta.url}">categorical view</a>.</p>
 
-        ${pubList (_: true) true}
+        ${pubList (_: _: true) true true}
       '';
     }
   ))
