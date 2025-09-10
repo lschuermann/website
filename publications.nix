@@ -41,6 +41,21 @@
       institution = "University of Californina, San Diego";
       country = "USA";
     };
+
+    stanford = {
+      institution = "Stanford University";
+      country = "USA";
+    };
+
+    uva = {
+      institution = "Unversity of Virginia";
+      country = "USA";
+    };
+
+    northwestern = {
+      institution = "Northwestern University";
+      country = "USA";
+    };
   };
 
   authors = {
@@ -82,6 +97,24 @@
 
       affiliations = {
         inherit (institutions) zerorisc;
+      };
+    };
+
+    brad_campbell = {
+      first = "Brad";
+      last = "Campbell";
+
+      affiliations = {
+        inherit (institutions) uva;
+      };
+    };
+
+    branden_ghena = {
+      first = "Branden";
+      last = "Ghena";
+
+      affiliations = {
+        inherit (institutions) northwestern;
       };
     };
 
@@ -130,6 +163,15 @@
       };
     };
 
+    phillip_levis = {
+      first = "Phillip";
+      last = "Levis";
+
+      affiliations = {
+        inherit (institutions) stanford;
+      };
+    };
+
     samir_rashid = {
       first = "Samir";
       last = "Rashid";
@@ -150,6 +192,13 @@
   };
 
   venues = {
+    "SOSP25" = {
+      type = "conference";
+      abbrev = "SOSP '25";
+      name = "The 31st ACM Symposium on Operating Systems Principles";
+      website = "https://sigops.org/s/conferences/sosp/2025/index.html";
+    };
+
     "OSDI25" = {
       type = "conference";
       abbrev = "OSDI '25";
@@ -205,6 +254,25 @@
   };
 
   pubs = {
+    "sosp25-tock-decade" = {
+      date = "2025-10-14";
+      type = "paper";
+      venue = "SOSP25";
+
+      title = "Tock: From Research To Securing 10 Million Computers";
+      authors = [
+        [ "me" "princeton" ]
+        [ "brad_campbell" "uva" ]
+        [ "branden_ghena" "northwestern" ]
+        [ "phillip_levis" "stanford" ]
+        [ "amit_levy" "princeton" ]
+        [ "pat_pannuto" "ucsd" ]
+      ];
+
+      selected = true;
+      unpublished = true;
+    };
+
     "osdi25-omniglot" = {
       date = "2025-07-07";
       type = "paper";
