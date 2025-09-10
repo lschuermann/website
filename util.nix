@@ -1,6 +1,88 @@
 pkgs:
 
 let
+
+  mapAttrOr =
+    f: attr: attrs: default:
+    if builtins.hasAttr "${attr}" attrs then (f attrs."${attr}") else default;
+
+  getAttrOr = mapAttrOr (x: x);
+
+  maybeHead = l: if l == null then null else builtins.head l;
+
+  mapOr = f: x: default: if x == null then default else f x;
+
+  getOr = mapOr (x: x);
+
+  parse_org = orgSource: let
+      initState = { block = "meta"; nextBlock = null; };
+      regexMatchAll =
+        s: let s' = (builtins.filter (c: c != "") (pkgs.lib.splitString "" s));
+           in pkgs.lib.concatMapStrings (c: "[" + pkgs.lib.toLower c + pkgs.lib.toUpper c + "]") s';
+      parse' = pkgs.lib.foldl ({ blocks, this }: line:
+        if this.block == null then
+          let
+            block = mapOr (l: getOr this.nextBlock (builtins.head l))
+              (builtins.match "#\\+${regexMatchAll "begin_export"} ([[:alnum:]]*)" line) this.block;
+            maybeNextBlock = mapOr (l: builtins.head l)
+              (builtins.match "#\\+${regexMatchAll "name"}: ([[:alnum:]]*)" line) null;
+            nextBlock = getOr maybeNextBlock this.nextBlock;
+          in
+            {
+              this = { inherit block nextBlock; };
+              blocks = blocks // getOr
+                (mapOr (_: {}) block null)
+                (mapOr (_: {}) maybeNextBlock
+                  { nonexport = (mapAttrOr (x: x + "\n") "nonexport" blocks "") + line; });
+            }
+        else if this.block == "meta" then
+          let
+            lineAttrTransform = transform: attr: prefix: line:
+              if pkgs.lib.hasPrefix (pkgs.lib.toLower prefix) (pkgs.lib.toLower line) then
+                {
+                  "${attr}" = transform (
+                    builtins.substring
+                      (builtins.stringLength prefix)
+                      ((builtins.stringLength line) - (builtins.stringLength prefix))
+                      line);
+                }
+              else
+                {};
+            lineAttr = lineAttrTransform (a: a);
+            superMeta = getAttrOr "meta" blocks {};
+            meta =
+              (lineAttr "title" "#+TITLE: " line)
+              // (lineAttr "date" "#+DATE: " line)
+              // (lineAttrTransform (author: [author]) "authors" "#+AUTHOR: " line)
+              // superMeta;
+          in
+            {
+              blocks = { inherit meta; } // blocks;
+              this = if meta == superMeta then this else { block = null; nextBlock = null; };
+            }
+        else
+          if builtins.match "#\\+end_export.*" (pkgs.lib.toLower line) == null then
+            {
+              inherit this;
+              blocks = blocks //
+                       { "${this.block}" = (mapAttrOr (x: x + "\n") this.block blocks "") + line; };
+            }
+          else
+            {
+              inherit blocks;
+              this = { block = null; nextBlock = null; };
+            }
+      ) { blocks = {}; this = initState; };
+    in
+      (parse' (pkgs.lib.strings.splitString "\n" (builtins.readFile orgSource))).blocks
+        // { source_path = builtins.toString orgSource; };
+
+  import_org = orgSource: let
+    parsed = parse_org orgSource;
+    nixDeriv = pkgs.writeText "import_org_deriv.nix" parsed.nix;
+  in
+    import nixDeriv parsed;
+
   parse_nixfm = file_ish: let
     contents = builtins.readFile file_ish;
 
@@ -248,5 +330,6 @@ in {
     parseRFC3339Sec
     formatRFC822
     formatRFC3339Sec
+    import_org
   ;
 }

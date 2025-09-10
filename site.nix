@@ -33,7 +33,7 @@ let
   };
 
   page_definitions = [
-    (import_nixfm ./index.nix.html)
+    (import_org ./index.org)
     (import ./publications.nix)
     (import_nixfm ./legal.nix.html)
 
