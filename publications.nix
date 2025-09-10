@@ -291,6 +291,8 @@
       selected = true;
 
       webpage = "https://www.usenix.org/conference/osdi25/presentation/schuermann";
+
+      best_paper = true;
     };
 
     "spices24-tabula-rasa" = {
@@ -309,6 +311,8 @@
       ];
 
       pdf = "https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf";
+
+      best_paper = true;
     };
 
     "kisv24-bridge" = {
@@ -439,7 +443,6 @@
     };
   };
 
-
   expandLinks = pub:
     (lib.optional (pub ? "doi") {
       fontIcon = fontIcons.doi;
@@ -503,7 +506,11 @@
     ${if pub.unpublished or false then "To appear in" else "In"}
     ${venue.abbrev}: <i>${venue.name}</i>${
       if venue ? "remark" then ", ${venue.remark}" else ""
-    }, ${dateFmt.B} ${dateFmt.Y}<br>
+    }, ${dateFmt.B} ${dateFmt.Y}${
+      lib.optionalString
+        (pub.best_paper or false)
+        ", <strong>Awarded Best Paper!</strong>"
+    }<br>
     ${htmlLinks pub}
   '';
 
