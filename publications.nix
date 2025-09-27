@@ -59,7 +59,7 @@
   };
 
   authors = {
-    me = {
+    leon_schuermann = {
       first = "Leon";
       last = "Schuermann";
 
@@ -261,7 +261,7 @@
 
       title = "Tock: From Research To Securing 10 Million Computers";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "brad_campbell" "uva" ]
         [ "branden_ghena" "northwestern" ]
         [ "phillip_levis" "stanford" ]
@@ -280,7 +280,7 @@
 
       title = "Building Bridges: Safe Interactions with Foreign Languages through Omniglot";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "jack_toubes" "princeton" ]
         [ "tyler_potyondy" "ucsd" ]
         [ "pat_pannuto" "ucsd" ]
@@ -305,7 +305,7 @@
       authors = [
         [ "tyler_potyondy" "ucsd" ]
         [ "samir_rashid" "ucsd" ]
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "anthony_tarbinian" "ucsd" ]
         [ "pat_pannuto" "ucsd" ]
       ];
@@ -324,7 +324,7 @@
         "Bridge: A Leak-Free Hardware-Software Architecture for Parallel Embedded Systems";
       authors = [
         [ "gongqi_huang" "princeton" ]
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "amit_levy" "princeton" ]
       ];
 
@@ -339,7 +339,7 @@
       title =
         "Safe Interactions with Foreign Languages through Encapsulated Functions";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "jack_toubes" "princeton" ]
         [ "tyler_potyondy" "ucsd" ]
         [ "mae_milano" "princeton" ]
@@ -357,7 +357,7 @@
       title =
         "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "arun_thomas" "zerorisc" ]
         [ "amit_levy" "princeton" ]
       ];
@@ -373,7 +373,7 @@
       title =
         "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "arun_thomas" "zerorisc" ]
         [ "amit_levy" "princeton" ]
       ];
@@ -390,7 +390,7 @@
         "HELIX: Co-designing the Hardware, Software and Network Protocol "
         + "for Reliable High-Bandwidth Communication in Constrained Systems";
       authors = [
-        [ "me" "princeton" ]
+        [ "leon_schuermann" "princeton" ]
         [ "amit_levy" "princeton" ]
         [ "frank_duerr" "uni_stuttgart" ]
       ];
@@ -411,7 +411,7 @@
         + "Lossless Hardware-Assisted Streaming of Real-Time Measurement Data "
         + "over IP Networks";
       authors = [
-        [ "me" "uni_stuttgart" ]
+        [ "leon_schuermann" "uni_stuttgart" ]
       ];
 
       doi = "10.18419/opus-12456";
@@ -429,7 +429,7 @@
         "Implementation and Evaluation of Time Synchronization Mechanisms for "
         + "Generic Embedded Systems for Time Sensitive Networking (TSN)";
       authors = [
-        [ "me" "uni_stuttgart" ]
+        [ "leon_schuermann" "uni_stuttgart" ]
         [ "frank_duerr" "uni_stuttgart" ]
       ];
 
