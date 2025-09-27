@@ -109,69 +109,98 @@ institutions:
 
 # Authors in alphabetical order:
 authors:
-  amit_levy:
-    affiliations:
-      princeton:
-    first: Amit
-    last: Levy
-    website: "https://www.amitlevy.com/"
-
-  anthony_tarbinian:
-    affiliations:
-      ucsd:
-    first: Anthony
-    last: Tarbinian
-    website: "https://atarbinian.com/"
-
-  arun_thomas:
-    affiliations:
-      zerorisc:
-    first: Arun
-    last: Thomas
-
-  brad_campbell:
+  campbell_brad:
     affiliations:
       uva:
     first: Brad
     last: Campbell
-    website: "https://engineering.virginia.edu/faculty/brad-campbell"
+    website: https://engineering.virginia.edu/faculty/brad-campbell
 
-  branden_ghena:
-    affiliations:
-      northwestern:
-    first: Branden
-    last: Ghena
-    website: "https://brandenghena.com/"
-
-  frank_duerr:
-    affiliations:
-      uni_stuttgart:
-    first: Frank
-    last: Duerr
-    website: "https://www.ipvs.uni-stuttgart.de/institute/team/Duerr/"
-
-  gongqi_huang:
+  caspin_shai:
     affiliations:
       princeton:
-    first: Gongqi
-    last: Huang
-    website: "https://gongqihuang.com/"
+    first: Shai
+    last: Caspin
+    website: https://www.cs.princeton.edu/~sc4479/
 
-  jack_toubes:
-    affiliations:
-      princeton:
-    first: Jack
-    last: Toubes
-    website: "https://jacktoubes.com/"
-
-  jingyuan_chen:
+  chen_jingyuan:
     affiliations:
       princeton:
     first: Jingyuan
     last: Chen
-    website: "https://leochanj105.github.io/"
+    website: https://leochanj105.github.io/
 
-  leon_schuermann:
+  duerr_frank:
+    affiliations:
+      uni_stuttgart:
+    first: Frank
+    last: Duerr
+    website: https://www.ipvs.uni-stuttgart.de/institute/team/Duerr/
+
+  ghena_branden:
+    affiliations:
+      northwestern:
+    first: Branden
+    last: Ghena
+    website: https://brandenghena.com/
+
+  huang_gongqi:
+    affiliations:
+      princeton:
+    first: Gongqi
+    last: Huang
+    website: https://gongqihuang.com/
+
+  levis_phillip:
+    affiliations:
+      stanford:
+    first: Phillip
+    last: Levis
+    website: https://csl.stanford.edu/~pal/
+
+  levy_amit:
+    affiliations:
+      princeton:
+    first: Amit
+    last: Levy
+    website: https://www.amitlevy.com/
+
+  milano_mae:
+    affiliations:
+      princeton:
+    first: Mae
+    last: Milano
+    website: https://www.languagesforsyste.ms/
+
+  pannuto_pat:
+    affiliations:
+      ucsd:
+    first: Pat
+    last: Pannuto
+    website: https://patpannuto.com/
+
+  popescu_natalie:
+    affiliations:
+      princeton:
+    first: Natalie
+    last: Popescu
+    website: https://www.cs.princeton.edu/~npopescu/
+
+  potyondy_tyler:
+    affiliations:
+      ucsd:
+    first: Tyler
+    last: Potyondy
+    website: https://tylerpotyondy.com/
+
+  rashid_samir:
+    affiliations:
+      ucsd:
+    first: Samir
+    last: Rashid
+    website: https://godsped.com/
+
+  schuermann_leon:
     affiliations:
       princeton:
       uni_stuttgart:
@@ -179,56 +208,27 @@ authors:
         to: 2022-04
     first: Leon
     last: Schuermann
-    website: "https://leon.schuermann.io/"
+    website: https://leon.schuermann.io/
 
-  mae_milano:
-    affiliations:
-      princeton:
-    first: Mae
-    last: Milano
-    website: "https://www.languagesforsyste.ms/"
-
-  natalie_popescu:
-    affiliations:
-      princeton:
-    first: Natalie
-    last: Popescu
-    website: "https://www.cs.princeton.edu/~npopescu/"
-
-  pat_pannuto:
+  tarbinian_anthony:
     affiliations:
       ucsd:
-    first: Pat
-    last: Pannuto
-    website: "https://patpannuto.com/"
+    first: Anthony
+    last: Tarbinian
+    website: https://atarbinian.com/
 
-  phillip_levis:
+  thomas_arun:
     affiliations:
-      stanford:
-    first: Phillip
-    last: Levis
-    website: "https://csl.stanford.edu/~pal/"
+      zerorisc:
+    first: Arun
+    last: Thomas
 
-  samir_rashid:
-    affiliations:
-      ucsd:
-    first: Samir
-    last: Rashid
-    website: "https://godsped.com/"
-
-  shai_caspin:
+  toubes_jack:
     affiliations:
       princeton:
-    first: Shai
-    last: Caspin
-    website: "https://www.cs.princeton.edu/~sc4479/"
-
-  tyler_potyondy:
-    affiliations:
-      ucsd:
-    first: Tyler
-    last: Potyondy
-    website: "https://tylerpotyondy.com/"
+    first: Jack
+    last: Toubes
+    website: https://jacktoubes.com/
 
 # Publications in reverse-chronological order:
 publications:
@@ -242,11 +242,11 @@ publications:
       Byzantine Actors
 
     authors:
-      - natalie_popescu@princeton
-      - shai_caspin@princeton
-      - leon_schuermann@princeton
-      - jingyuan_chen@princeton
-      - amit_levy@princeton
+      - popescu_natalie@princeton
+      - caspin_shai@princeton
+      - schuermann_leon@princeton
+      - chen_jingyuan@princeton
+      - levy_amit@princeton
 
     venue: ACSAC25
 
@@ -260,12 +260,12 @@ publications:
       Tock: From Research To Securing 10 Million Computers
 
     authors:
-      - leon_schuermann@princeton
-      - brad_campbell@uva
-      - branden_ghena@northwestern
-      - phillip_levis@stanford
-      - amit_levy@princeton
-      - pat_pannuto@ucsd
+      - schuermann_leon@princeton
+      - campbell_brad@uva
+      - ghena_branden@northwestern
+      - levis_phillip@stanford
+      - levy_amit@princeton
+      - pannuto_pat@ucsd
 
     venue: SOSP25
 
@@ -279,12 +279,12 @@ publications:
       through Omniglot
 
     authors:
-      - leon_schuermann@princeton
-      - jack_toubes@princeton
-      - tyler_potyondy@ucsd
-      - pat_pannuto@ucsd
-      - mae_milano@princeton
-      - amit_levy@princeton
+      - schuermann_leon@princeton
+      - toubes_jack@princeton
+      - potyondy_tyler@ucsd
+      - pannuto_pat@ucsd
+      - milano_mae@princeton
+      - levy_amit@princeton
 
     webpage: https://www.usenix.org/conference/osdi25/presentation/schuermann
 
@@ -299,11 +299,11 @@ publications:
       Tabula Rasa: Starting Safe Stays Safe
 
     authors:
-      - tyler_potyondy@ucsd
-      - samir_rashid@ucsd
-      - leon_schuermann@princeton
-      - anthony_tarbinian@ucsd
-      - pat_pannuto@ucsd
+      - potyondy_tyler@ucsd
+      - rashid_samir@ucsd
+      - schuermann_leon@princeton
+      - tarbinian_anthony@ucsd
+      - pannuto_pat@ucsd
 
     pdf: https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf
 
@@ -319,9 +319,9 @@ publications:
       Embedded Systems
 
     authors:
-      - gongqi_huang@princeton
-      - leon_schuermann@princeton
-      - amit_levy@princeton
+      - huang_gongqi@princeton
+      - schuermann_leon@princeton
+      - levy_amit@princeton
 
     doi: 10.1145/3698576.3698765
     venue: KISV24
@@ -334,11 +334,11 @@ publications:
       Functions
 
     authors:
-      - leon_schuermann@princeton
-      - jack_toubes@princeton
-      - tyler_potyondy@ucsd
-      - mae_milano@princeton
-      - amit_levy@princeton
+      - schuermann_leon@princeton
+      - toubes_jack@princeton
+      - potyondy_tyler@ucsd
+      - milano_mae@princeton
+      - levy_amit@princeton
 
     slides_pdf: /publications/2024_Schuermann_Encapsulated-Functions_RustNL24_Slides.pdf
 
@@ -353,9 +353,9 @@ publications:
       Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems
 
     authors:
-      - leon_schuermann@princeton
-      - arun_thomas@zerorisc
-      - amit_levy@princeton
+      - schuermann_leon@princeton
+      - thomas_arun@zerorisc
+      - levy_amit@princeton
 
     pdf: /publications/2023_Schuermann_Encapsulated-Functions_SOSP23-poster.pdf
     venue: SOSP23
@@ -369,9 +369,9 @@ publications:
       Systems
 
     authors:
-      - leon_schuermann@princeton
-      - arun_thomas@zerorisc
-      - amit_levy@princeton
+      - schuermann_leon@princeton
+      - thomas_arun@zerorisc
+      - levy_amit@princeton
 
     doi: 10.1145/3625275.3625397
     venue: KISV23
@@ -385,9 +385,9 @@ publications:
       for Reliable High-Bandwidth Communication in Constrained Systems
 
     authors:
-      - leon_schuermann@princeton
-      - amit_levy@princeton
-      - frank_duerr@uni_stuttgart
+      - schuermann_leon@princeton
+      - levy_amit@princeton
+      - duerr_frank@uni_stuttgart
 
     pdf: /publications/2023_Schuermann_HELIX_OSDI23-poster.pdf
 
@@ -403,7 +403,7 @@ publications:
       Data over IP Networks
 
     authors:
-      - leon_schuermann@uni_stuttgart
+      - schuermann_leon@uni_stuttgart
 
     thesisInstitution: >
       University of Stuttgart, Institute of Parallel and Distributed
@@ -421,8 +421,8 @@ publications:
       for Generic Embedded Systems for Time Sensitive Networking (TSN)
 
     authors:
-      - leon_schuermann@uni_stuttgart
-      - frank_duerr@uni_stuttgart
+      - schuermann_leon@uni_stuttgart
+      - duerr_frank@uni_stuttgart
 
     techreportNumber: TR-2021-02
     techreportPublisher: >

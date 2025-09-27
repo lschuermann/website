@@ -119,7 +119,7 @@ let
 
           authorSpan = ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>'';
         in
-        if author ? "website" && authorKey != "leon_schuermann" then
+        if author ? "website" && authorKey != "schuermann_leon" then
           ''<a href="${author.website}">${authorSpan}</a>''
         else
           authorSpan
