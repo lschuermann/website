@@ -135,6 +135,10 @@ let
         destination = meta.filePath;
       }
     ) applied_pages);
+
+    passthru = {
+      pages = applied_pages;
+    };
   };
 
   checkedOutput = stdenvNoCC.mkDerivation {
@@ -160,6 +164,8 @@ let
     # Avoid errors related to fixup attempting to fix permissions on
     # the output derivation:
     fixupPhase = "true";
+
+    inherit (output) passthru;
   };
 
 in
