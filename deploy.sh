@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#! /usr/bin/env nix-shell
+#! nix-shell --pure -i bash -p openssh bash git rsync nixfmt-tree nix cacert
 
 set -Eeuox pipefail
 

@@ -5,7 +5,7 @@
   renderBlogDrafts ? false,
 }:
 
-with import <nixpkgs> { };
+with import ./pinned-pkgs.nix { };
 with import ./util.nix pkgs;
 
 let
