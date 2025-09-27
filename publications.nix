@@ -236,7 +236,7 @@ in
         <h2>Theses</h2>
         ${pubList (_: p: p.type == "thesis") false true}
 
-        <h2>Reports, Posters and Other Publications</h2>
+        <h2>Reports, Posters, and Other Publications</h2>
         ${pubList (
           _: p:
           !(builtins.elem p.type [
