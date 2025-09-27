@@ -227,7 +227,7 @@ in
         <h2>Selected Publications</h2>
         ${pubList (_: p: (p.selected or false)) false false}
 
-        <h2>Papers</h2>
+        <h2>Conference / Workshop Papers</h2>
         ${pubList (_: p: p.type == "paper") false true}
 
         <h2>Talks</h2>
