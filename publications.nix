@@ -7,9 +7,11 @@
 }@site_args:
 let
 
+  data = util.import_yaml ./publications.yml;
+
   publicationLink =
     key:
-    if (builtins.hasAttr key pubs) then
+    if (builtins.hasAttr key data.publications) then
       "${pages.publications.meta.url}#${key}"
     else
       throw "Publicaton with key ${key} not defined!";
@@ -39,532 +41,6 @@ let
     "techreport" = "Technical Report";
     "thesis" = "Thesis";
     "talk" = "Talk";
-  };
-
-  institutions = {
-    northwestern = {
-      institution = "Northwestern University";
-      country = "USA";
-    };
-
-    princeton = {
-      institution = "Princeton University";
-      country = "USA";
-    };
-
-    stanford = {
-      institution = "Stanford University";
-      country = "USA";
-    };
-
-    ucsd = {
-      institution = "University of Californina, San Diego";
-      country = "USA";
-    };
-
-    uni_stuttgart = {
-      institution = "University of Stuttgart";
-      country = "Germany";
-    };
-
-    uva = {
-      institution = "Unversity of Virginia";
-      country = "USA";
-    };
-
-    zerorisc = {
-      institution = "zeroRISC Inc.";
-      country = "USA";
-    };
-  };
-
-  authors = {
-    amit_levy = {
-      first = "Amit";
-      last = "Levy";
-
-      affiliations = {
-        inherit (institutions) princeton;
-      };
-    };
-
-    anthony_tarbinian = {
-      first = "Anthony";
-      last = "Tarbinian";
-
-      affiliations = {
-        inherit (institutions) ucsd;
-      };
-    };
-
-    arun_thomas = {
-      first = "Arun";
-      last = "Thomas";
-
-      affiliations = {
-        inherit (institutions) zerorisc;
-      };
-    };
-
-    brad_campbell = {
-      first = "Brad";
-      last = "Campbell";
-
-      affiliations = {
-        inherit (institutions) uva;
-      };
-    };
-
-    branden_ghena = {
-      first = "Branden";
-      last = "Ghena";
-
-      affiliations = {
-        inherit (institutions) northwestern;
-      };
-    };
-
-    frank_duerr = {
-      first = "Frank";
-      last = "Duerr";
-
-      affiliations = {
-        inherit (institutions) uni_stuttgart;
-      };
-    };
-
-    gongqi_huang = {
-      first = "Gongqi";
-      last = "Huang";
-
-      affiliations = {
-        inherit (institutions) princeton;
-      };
-    };
-
-    jack_toubes = {
-      first = "Jack";
-      last = "Toubes";
-
-      affiliations = {
-        inherit (institutions) princeton;
-      };
-    };
-
-    leon_schuermann = {
-      first = "Leon";
-      last = "Schuermann";
-
-      affiliations = {
-        inherit (institutions) princeton;
-
-        uni_stuttgart = institutions.uni_stuttgart // {
-          from = "2019-10";
-          to = "2022-04";
-        };
-      };
-    };
-
-    mae_milano = {
-      first = "Mae";
-      last = "Milano";
-
-      affiliations = {
-        inherit (institutions) princeton;
-      };
-    };
-
-    pat_pannuto = {
-      first = "Pat";
-      last = "Pannuto";
-
-      affiliations = {
-        inherit (institutions) ucsd;
-      };
-    };
-
-    phillip_levis = {
-      first = "Phillip";
-      last = "Levis";
-
-      affiliations = {
-        inherit (institutions) stanford;
-      };
-    };
-
-    samir_rashid = {
-      first = "Samir";
-      last = "Rashid";
-
-      affiliations = {
-        inherit (institutions) ucsd;
-      };
-    };
-
-    tyler_potyondy = {
-      first = "Tyler";
-      last = "Potyondy";
-
-      affiliations = {
-        inherit (institutions) ucsd;
-      };
-    };
-  };
-
-  venues = {
-    "SOSP25" = {
-      type = "conference";
-      abbrev = "SOSP '25";
-      name = "The 31st ACM Symposium on Operating Systems Principles";
-      website = "https://sigops.org/s/conferences/sosp/2025/index.html";
-    };
-
-    "OSDI25" = {
-      type = "conference";
-      abbrev = "OSDI '25";
-      name = "19th USENIX Symposium on Operating Systems Design and Implementation";
-      website = "https://www.usenix.org/conference/osdi25";
-    };
-
-    "SPICES24" = {
-      type = "workshop";
-      abbrev = "SPICES 2024";
-      name = "The 3rd Workshop on Security and Privacy in Connected Embedded Systems";
-      website = "https://www.tii.ae/workshop/spices";
-      remark = "Co-located with EWSN 2024";
-    };
-
-    "KISV24" = {
-      type = "workshop";
-      abbrev = "KISV '24";
-      name = "2nd Workshop on Kernel Isolation, Safety and Verification";
-      website = "https://kisv-workshop.github.io/";
-      remark = "Co-located with SOSP '24";
-    };
-
-    "SOSP23" = {
-      type = "conference";
-      abbrev = "SOSP '23";
-      name = "The 29th ACM Symposium on Operating Systems Principles";
-      website = "https://sosp2023.mpi-sws.org/";
-    };
-
-    "KISV23" = {
-      type = "workshop";
-      abbrev = "KISV '23";
-      name = "1st Workshop on Kernel Isolation, Safety and Verification";
-      website = "https://kisv-workshop.github.io/archive/2023/";
-      remark = "Co-located with SOSP '23";
-    };
-
-    "OSDI23" = {
-      type = "conference";
-      abbrev = "OSDI '23";
-      name = "17th USENIX Symposium on Operating Systems Design and Implementation";
-      website = "https://www.usenix.org/conference/osdi23";
-    };
-
-    "RustNL24" = {
-      type = "conference";
-      name = "RustNL 2024";
-      website = "https://2024.rustnl.org/";
-    };
-  };
-
-  pubs = {
-    "sosp25-tock-decade" = {
-      date = "2025-10-14";
-      type = "paper";
-      venue = "SOSP25";
-
-      title = "Tock: From Research To Securing 10 Million Computers";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "brad_campbell"
-          "uva"
-        ]
-        [
-          "branden_ghena"
-          "northwestern"
-        ]
-        [
-          "phillip_levis"
-          "stanford"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-        [
-          "pat_pannuto"
-          "ucsd"
-        ]
-      ];
-
-      selected = true;
-      unpublished = true;
-    };
-
-    "osdi25-omniglot" = {
-      date = "2025-07-07";
-      type = "paper";
-      venue = "OSDI25";
-
-      title = "Building Bridges: Safe Interactions with Foreign Languages through Omniglot";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "jack_toubes"
-          "princeton"
-        ]
-        [
-          "tyler_potyondy"
-          "ucsd"
-        ]
-        [
-          "pat_pannuto"
-          "ucsd"
-        ]
-        [
-          "mae_milano"
-          "princeton"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-      ];
-
-      selected = true;
-
-      webpage = "https://www.usenix.org/conference/osdi25/presentation/schuermann";
-
-      best_paper = true;
-    };
-
-    "spices24-tabula-rasa" = {
-      date = "2024-12-10";
-      type = "paper";
-      venue = "SPICES24";
-
-      title = "Tabula Rasa: Starting Safe Stays Safe";
-      authors = [
-        [
-          "tyler_potyondy"
-          "ucsd"
-        ]
-        [
-          "samir_rashid"
-          "ucsd"
-        ]
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "anthony_tarbinian"
-          "ucsd"
-        ]
-        [
-          "pat_pannuto"
-          "ucsd"
-        ]
-      ];
-
-      pdf = "https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf";
-
-      best_paper = true;
-    };
-
-    "kisv24-bridge" = {
-      date = "2024-11-03";
-      type = "paper";
-      venue = "KISV24";
-
-      title = "Bridge: A Leak-Free Hardware-Software Architecture for Parallel Embedded Systems";
-      authors = [
-        [
-          "gongqi_huang"
-          "princeton"
-        ]
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-      ];
-
-      doi = "10.1145/3698576.3698765";
-    };
-
-    "rustnl2024-encapsulated-functions" = {
-      date = "2024-05-07";
-      type = "talk";
-      venue = "RustNL24";
-
-      title = "Safe Interactions with Foreign Languages through Encapsulated Functions";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "jack_toubes"
-          "princeton"
-        ]
-        [
-          "tyler_potyondy"
-          "ucsd"
-        ]
-        [
-          "mae_milano"
-          "princeton"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-      ];
-
-      slides_pdf = "/publications/2024_Schuermann_Encapsulated-Functions_RustNL24_Slides.pdf";
-    };
-
-    "sosp23-encapsulated-functions-poster" = {
-      date = "2023-10-24";
-      type = "poster";
-      venue = "SOSP23";
-
-      title = "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "arun_thomas"
-          "zerorisc"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-      ];
-
-      pdf = "/publications/2023_Schuermann_Encapsulated-Functions_SOSP23-poster.pdf";
-    };
-
-    "kisv23-encapsulated-functions" = {
-      date = "2023-10-23";
-      type = "paper";
-      venue = "KISV23";
-
-      title = "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "arun_thomas"
-          "zerorisc"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-      ];
-
-      doi = "10.1145/3625275.3625397";
-    };
-
-    "osdi23-helix-poster" = {
-      date = "2023-07-10";
-      type = "poster";
-      venue = "OSDI23";
-
-      title =
-        "HELIX: Co-designing the Hardware, Software and Network Protocol "
-        + "for Reliable High-Bandwidth Communication in Constrained Systems";
-      authors = [
-        [
-          "leon_schuermann"
-          "princeton"
-        ]
-        [
-          "amit_levy"
-          "princeton"
-        ]
-        [
-          "frank_duerr"
-          "uni_stuttgart"
-        ]
-      ];
-
-      pdf = "/publications/2023_Schuermann_HELIX_OSDI23-poster.pdf";
-    };
-
-    "2022-helix-master-thesis" = {
-      date = "2022-04-20";
-      type = "thesis";
-
-      thesisLabel = "Master' Thesis";
-      thesisInstitution = "University of Stuttgart, Institute of Parallel and Distributed Systems";
-
-      title =
-        "Design and Evaluation of System Concepts and Protocols for "
-        + "Lossless Hardware-Assisted Streaming of Real-Time Measurement Data "
-        + "over IP Networks";
-      authors = [
-        [
-          "leon_schuermann"
-          "uni_stuttgart"
-        ]
-      ];
-
-      doi = "10.18419/opus-12456";
-    };
-
-    "2021-ptp-time-sync-embedded-systems" = {
-      date = "2021-12-05";
-      type = "techreport";
-
-      techreportPublisher = "University of Stuttgart, Institute of Parallel and Distributed Systems";
-      techreportNumber = "TR-2021-02";
-
-      title =
-        "Implementation and Evaluation of Time Synchronization Mechanisms for "
-        + "Generic Embedded Systems for Time Sensitive Networking (TSN)";
-      authors = [
-        [
-          "leon_schuermann"
-          "uni_stuttgart"
-        ]
-        [
-          "frank_duerr"
-          "uni_stuttgart"
-        ]
-      ];
-
-      pdf = "/publications/2021_Schuermann_ptp-time-sync-embedded-systems.pdf";
-
-      extraLinks = [
-        {
-          fontIcon = fontIcons.link;
-          url = "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=TR-2021-02&mod=1&engl=1&inst=FAK";
-          label = "Online Record";
-        }
-      ];
-    };
   };
 
   expandLinks =
@@ -615,13 +91,31 @@ let
     pub:
     lib.concatStringsSep ", " (
       builtins.map (
-        a:
+        authorAffiliation:
         let
-          authorKey = builtins.head a;
-          affiliationKey = builtins.head (builtins.tail a);
-          author = authors."${authorKey}";
-          affiliation = author.affiliations."${affiliationKey}";
+          # An author can have multiple institutions over time, so we
+          # specify authors of publications as "<author>@<affil>"
+          splitAuthorAffiliation = lib.splitString "@" authorAffiliation;
+          authorKey = builtins.head splitAuthorAffiliation;
+          affiliationKey = builtins.head (builtins.tail splitAuthorAffiliation);
+
+          # The author is uniquely identified by the "authorKey" and
+          # can be looked up in the "authors" object.
+          author = data.authors."${authorKey}";
           fullName = "${author.first} ${author.last}";
+
+          # The author object has affiliations (a map from affiliation
+          # key to attributes, or just "null"). If certain affiliation
+          # fields are not overwritten, we take them from the
+          # "institutions" object.
+          affiliation =
+            (data.institutions."${affiliationKey}" or { })
+            // (
+              if author.affiliations."${affiliationKey}" != null then
+                author.affiliations."${affiliationKey}"
+              else
+                { }
+            );
         in
         ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>''
       ) pub.authors
@@ -630,7 +124,7 @@ let
   paperPosterTemplate =
     pub:
     let
-      venue = venues."${pub.venue}";
+      venue = data.venues."${pub.venue}";
       dateFmt = util.expandDate pub.date;
     in
     ''
@@ -672,7 +166,7 @@ let
   talkTemplate =
     pub:
     let
-      venue = venues."${pub.venue}";
+      venue = data.venues."${pub.venue}";
       dateFmt = util.expandDate pub.date;
     in
     ''
@@ -707,7 +201,9 @@ let
           )
           (
             builtins.sort (a: b: a.value.date > b.value.date) (
-              builtins.filter (pub: pubFilter pub.name pub.value) (lib.mapAttrsToList lib.nameValuePair pubs)
+              builtins.filter (pub: pubFilter pub.name pub.value) (
+                lib.mapAttrsToList lib.nameValuePair data.publications
+              )
             )
           )
       )}
@@ -753,9 +249,7 @@ in
 
       export = {
         inherit
-          authors
-          venues
-          pubs
+          data
           publicationLink
           ;
       };

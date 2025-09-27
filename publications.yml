@@ -1,0 +1,378 @@
+# Conference venues in reverse-chronological order:
+venues:
+  SOSP25:
+    type: conference
+    abbrev: "SOSP '25"
+    name: "The 31st ACM Symposium on Operating Systems Principles"
+    website: "https://sigops.org/s/conferences/sosp/2025/index.html"
+    start: 2025-10-14T00:00:00+09:00
+    end: 2025-10-16T23:59:59+09:00
+
+  KISV25:
+    type: workshop
+    abbrev: "KISV '25"
+    name: "3nd Workshop on Kernel Isolation, Safety and Verification"
+    remark: "Co-located with SOSP '25"
+    website: "https://kisv-workshop.github.io/"
+    start: 2025-10-13T00:00:00+09:00
+    end: 2025-10-13T23:59:59+09:00
+
+  OSDI25:
+    type: conference
+    abbrev: "OSDI '25"
+    name: "19th USENIX Symposium on Operating Systems Design and Implementation"
+    website: "https://www.usenix.org/conference/osdi25"
+    start: 2025-07-07T00:00:00-04:00
+    end: 2025-07-09T23:59:59-04:00
+
+  SPICES24:
+    type: workshop
+    abbrev: "SPICES 2024"
+    name: "The 3rd Workshop on Security and Privacy in Connected Embedded Systems"
+    remark: "Co-located with EWSN 2024"
+    website: "https://www.tii.ae/workshop/spices"
+    start: 2024-12-10T00:00:00+04:00
+    end: 2024-12-10T23:59:59+04:00
+
+  KISV24:
+    type: workshop
+    abbrev: "KISV '24"
+    name: "2nd Workshop on Kernel Isolation, Safety and Verification"
+    remark: "Co-located with SOSP '24"
+    website: "https://kisv-workshop.github.io/archive/2024/"
+    start: 2024-11-03T00:00:00-05:00
+    end: 2024-11-03T23:59:59-05:00
+
+  RustNL24:
+    type: conference
+    name: "RustNL 2024"
+    website: "https://2024.rustnl.org/"
+    start: 2024-05-07T00:00:00+01:00
+    end: 2024-05-08T23:59:59+01:00
+
+  SOSP23:
+    type: conference
+    abbrev: "SOSP '23"
+    name: "The 29th ACM Symposium on Operating Systems Principles"
+    website: "https://sosp2023.mpi-sws.org/"
+    start: 2023-10-24T00:00:00+01:00
+    end: 2023-07-26T23:59:59+01:00
+
+  KISV23:
+    type: workshop
+    abbrev: "KISV '23"
+    name: "1st Workshop on Kernel Isolation, Safety and Verification"
+    remark: "Co-located with SOSP '23"
+    website: "https://kisv-workshop.github.io/archive/2023/"
+    start: 2023-10-23T00:00:00+01:00
+    end: 2023-07-23T23:59:59+01:00
+
+  OSDI23:
+    type: conference
+    abbrev: "OSDI '23"
+    name: "17th USENIX Symposium on Operating Systems Design and Implementation"
+    website: "https://www.usenix.org/conference/osdi23"
+    start: 2023-07-10T00:00:00-04:00
+    end: 2023-07-12T23:59:59-04:00
+
+# Institutions in alphabetical order:
+institutions:
+  northwestern:
+    country: USA
+    institution: Northwestern University
+  princeton:
+    country: USA
+    institution: Princeton University
+  stanford:
+    country: USA
+    institution: Stanford University
+  ucsd:
+    country: USA
+    institution: University of Californina, San Diego
+  uni_stuttgart:
+    country: Germany
+    institution: University of Stuttgart
+  uva:
+    country: USA
+    institution: Unversity of Virginia
+  zerorisc:
+    country: USA
+    institution: zeroRISC Inc.
+
+# Authors in alphabetical order:
+authors:
+  amit_levy:
+    affiliations:
+      princeton:
+    first: Amit
+    last: Levy
+
+  anthony_tarbinian:
+    affiliations:
+      ucsd:
+    first: Anthony
+    last: Tarbinian
+
+  arun_thomas:
+    affiliations:
+      zerorisc:
+    first: Arun
+    last: Thomas
+
+  brad_campbell:
+    affiliations:
+      uva:
+    first: Brad
+    last: Campbell
+
+  branden_ghena:
+    affiliations:
+      northwestern:
+    first: Branden
+    last: Ghena
+
+  frank_duerr:
+    affiliations:
+      uni_stuttgart:
+    first: Frank
+    last: Duerr
+
+  gongqi_huang:
+    affiliations:
+      princeton:
+    first: Gongqi
+    last: Huang
+
+  jack_toubes:
+    affiliations:
+      princeton:
+    first: Jack
+    last: Toubes
+
+  leon_schuermann:
+    affiliations:
+      princeton:
+      uni_stuttgart:
+        from: 2019-10
+        to: 2022-04
+    first: Leon
+    last: Schuermann
+
+  mae_milano:
+    affiliations:
+      princeton:
+    first: Mae
+    last: Milano
+
+  pat_pannuto:
+    affiliations:
+      ucsd:
+    first: Pat
+    last: Pannuto
+
+  phillip_levis:
+    affiliations:
+      stanford:
+    first: Phillip
+    last: Levis
+
+  samir_rashid:
+    affiliations:
+      ucsd:
+    first: Samir
+    last: Rashid
+
+  tyler_potyondy:
+    affiliations:
+      ucsd:
+    first: Tyler
+    last: Potyondy
+
+# Publications in reverse-chronological order:
+publications:
+  sosp25-tock-decade:
+    type: paper
+    date: '2025-10-14'
+    selected: true
+    unpublished: true
+
+    title: >
+      Tock: From Research To Securing 10 Million Computers
+
+    authors:
+      - leon_schuermann@princeton
+      - brad_campbell@uva
+      - branden_ghena@northwestern
+      - phillip_levis@stanford
+      - amit_levy@princeton
+      - pat_pannuto@ucsd
+
+    venue: SOSP25
+
+  osdi25-omniglot:
+    type: paper
+    date: '2025-07-07'
+    selected: true
+
+    title: >
+      Building Bridges: Safe Interactions with Foreign Languages
+      through Omniglot
+
+    authors:
+      - leon_schuermann@princeton
+      - jack_toubes@princeton
+      - tyler_potyondy@ucsd
+      - pat_pannuto@ucsd
+      - mae_milano@princeton
+      - amit_levy@princeton
+
+    webpage: https://www.usenix.org/conference/osdi25/presentation/schuermann
+
+    venue: OSDI25
+    best_paper: true
+
+  spices24-tabula-rasa:
+    type: paper
+    date: '2024-12-10'
+
+    title: >
+      Tabula Rasa: Starting Safe Stays Safe
+
+    authors:
+      - tyler_potyondy@ucsd
+      - samir_rashid@ucsd
+      - leon_schuermann@princeton
+      - anthony_tarbinian@ucsd
+      - pat_pannuto@ucsd
+
+    pdf: https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf
+
+    venue: SPICES24
+    best_paper: true
+
+  kisv24-bridge:
+    type: paper
+    date: '2024-11-03'
+
+    title: >
+      Bridge: A Leak-Free Hardware-Software Architecture for Parallel
+      Embedded Systems
+
+    authors:
+      - gongqi_huang@princeton
+      - leon_schuermann@princeton
+      - amit_levy@princeton
+
+    doi: 10.1145/3698576.3698765
+    venue: KISV24
+
+  rustnl2024-encapsulated-functions:
+    date: '2024-05-07'
+
+    title: >
+      Safe Interactions with Foreign Languages through Encapsulated
+      Functions
+
+    authors:
+      - leon_schuermann@princeton
+      - jack_toubes@princeton
+      - tyler_potyondy@ucsd
+      - mae_milano@princeton
+      - amit_levy@princeton
+
+    slides_pdf: /publications/2024_Schuermann_Encapsulated-Functions_RustNL24_Slides.pdf
+
+    type: talk
+    venue: RustNL24
+
+  sosp23-encapsulated-functions-poster:
+    type: poster
+    date: '2023-10-24'
+
+    title: >
+      Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems
+
+    authors:
+      - leon_schuermann@princeton
+      - arun_thomas@zerorisc
+      - amit_levy@princeton
+
+    pdf: /publications/2023_Schuermann_Encapsulated-Functions_SOSP23-poster.pdf
+    venue: SOSP23
+
+  kisv23-encapsulated-functions:
+    type: paper
+    date: '2023-10-23'
+
+    title: >
+      Encapsulated Functions: Fortifying Rust's FFI in Embedded
+      Systems
+
+    authors:
+      - leon_schuermann@princeton
+      - arun_thomas@zerorisc
+      - amit_levy@princeton
+
+    doi: 10.1145/3625275.3625397
+    venue: KISV23
+
+  osdi23-helix-poster:
+    date: '2023-07-10'
+    type: poster
+
+    title: >
+      HELIX: Co-designing the Hardware, Software and Network Protocol
+      for Reliable High-Bandwidth Communication in Constrained Systems
+
+    authors:
+      - leon_schuermann@princeton
+      - amit_levy@princeton
+      - frank_duerr@uni_stuttgart
+
+    pdf: /publications/2023_Schuermann_HELIX_OSDI23-poster.pdf
+
+    venue: OSDI23
+
+  2022-helix-master-thesis:
+    type: thesis
+    date: '2022-04-20'
+
+    title: >
+      Design and Evaluation of System Concepts and Protocols for
+      Lossless Hardware-Assisted Streaming of Real-Time Measurement
+      Data over IP Networks
+
+    authors:
+      - leon_schuermann@uni_stuttgart
+
+    thesisInstitution: >
+      University of Stuttgart, Institute of Parallel and Distributed
+      Systems
+    thesisLabel: Master' Thesis
+
+    doi: 10.18419/opus-12456
+
+  2021-ptp-time-sync-embedded-systems:
+    type: techreport
+    date: '2021-12-05'
+
+    title: >
+      Implementation and Evaluation of Time Synchronization Mechanisms
+      for Generic Embedded Systems for Time Sensitive Networking (TSN)
+
+    authors:
+      - leon_schuermann@uni_stuttgart
+      - frank_duerr@uni_stuttgart
+
+    techreportNumber: TR-2021-02
+    techreportPublisher: >
+      University of Stuttgart, Institute of Parallel and Distributed
+      Systems
+
+    pdf: /publications/2021_Schuermann_ptp-time-sync-embedded-systems.pdf
+    extraLinks:
+      - fontIcon:
+          - fontawesome4
+          - '&#xf0c1;'
+        label: Online Record
+        url: "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=TR-2021-02&mod=1&engl=1&inst=FAK"

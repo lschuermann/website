@@ -1,6 +1,14 @@
 pkgs:
 
 let
+  import_yaml =
+    file:
+    builtins.fromJSON (
+      builtins.readFile "${pkgs.runCommandNoCC "converted.json" { } ''
+        ${pkgs.yj}/bin/yj < "${file}" > "$out"
+      ''}"
+    );
+
   parse_nixfm =
     file_ish:
     let
@@ -273,6 +281,7 @@ let
 in
 {
   inherit
+    import_yaml
     parse_nixfm
     import_nixfm
     template
