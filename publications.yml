@@ -1,5 +1,13 @@
 # Conference venues in reverse-chronological order:
 venues:
+  ACSAC25:
+    type: conference
+    abbrev: "ACSAC '25"
+    name: "The 41st Annual Computer Security Applications Conference"
+    website: "https://www.acsac.org/"
+    start: 2025-12-08T00:00:00-10:00
+    end: 2025-12-12T23:59:59-10:00
+
   SOSP25:
     type: conference
     abbrev: "SOSP '25"
@@ -149,6 +157,12 @@ authors:
     first: Jack
     last: Toubes
 
+  jingyuan_chen:
+    affiliations:
+      princeton:
+    first: Jingyuan
+    last: Chen
+
   leon_schuermann:
     affiliations:
       princeton:
@@ -163,6 +177,12 @@ authors:
       princeton:
     first: Mae
     last: Milano
+
+  natalie_popescu:
+    affiliations:
+      princeton:
+    first: Natalie
+    last: Popescu
 
   pat_pannuto:
     affiliations:
@@ -182,6 +202,12 @@ authors:
     first: Samir
     last: Rashid
 
+  shai_caspin:
+    affiliations:
+      princeton:
+    first: Shai
+    last: Caspin
+
   tyler_potyondy:
     affiliations:
       ucsd:
@@ -190,6 +216,24 @@ authors:
 
 # Publications in reverse-chronological order:
 publications:
+  acsac25-scuba:
+    type: paper
+    date: '2025-12-08'
+    unpublished: true
+
+    title: >
+      End-to-End Encrypted Applications with Strong Consistency Under
+      Byzantine Actors
+
+    authors:
+      - natalie_popescu@princeton
+      - shai_caspin@princeton
+      - leon_schuermann@princeton
+      - jingyuan_chen@princeton
+      - amit_levy@princeton
+
+    venue: ACSAC25
+
   sosp25-tock-decade:
     type: paper
     date: '2025-10-14'
