@@ -24,6 +24,12 @@ if ! git merge-base --is-ancestor github/public HEAD; then
     exit 1
 fi
 
+echo "Making sure that the Nix files in tree are well formatted"
+if ! treefmt --ci .; then
+    echo "`treefmt --ci` failed, fix formatting errors!"
+    exit 1
+fi
+
 echo "Building site..." >&2
 nix-build --argstr gitRev "$(git rev-parse HEAD)" site.nix
 
