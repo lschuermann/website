@@ -117,7 +117,9 @@ let
                 { }
             );
 
-          authorSpan = ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>'';
+          authorSpan = ''<span title="${fullName}${
+            lib.optionalString (author ? "native_lang_name") " (${author.native_lang_name})"
+          }, ${affiliation.institution}">${fullName}</span>'';
         in
         if author ? "website" && authorKey != "schuermann_leon" then
           ''<a href="${author.website}">${authorSpan}</a>''
