@@ -59,20 +59,6 @@
   };
 
   authors = {
-    leon_schuermann = {
-      first = "Leon";
-      last = "Schuermann";
-
-      affiliations = {
-        inherit (institutions) princeton;
-
-        uni_stuttgart = institutions.uni_stuttgart // {
-          from = "2019-10";
-          to = "2022-04";
-        };
-      };
-    };
-
     amit_levy = {
       first = "Amit";
       last = "Levy";
@@ -118,15 +104,6 @@
       };
     };
 
-    gongqi_huang = {
-      first = "Gongqi";
-      last = "Huang";
-
-      affiliations = {
-        inherit (institutions) princeton;
-      };
-    };
-
     frank_duerr = {
       first = "Frank";
       last = "Duerr";
@@ -136,12 +113,35 @@
       };
     };
 
+    gongqi_huang = {
+      first = "Gongqi";
+      last = "Huang";
+
+      affiliations = {
+        inherit (institutions) princeton;
+      };
+    };
+
     jack_toubes = {
       first = "Jack";
       last = "Toubes";
 
       affiliations = {
         inherit (institutions) princeton;
+      };
+    };
+
+    leon_schuermann = {
+      first = "Leon";
+      last = "Schuermann";
+
+      affiliations = {
+        inherit (institutions) princeton;
+
+        uni_stuttgart = institutions.uni_stuttgart // {
+          from = "2019-10";
+          to = "2022-04";
+        };
       };
     };
 
