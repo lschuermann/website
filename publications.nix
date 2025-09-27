@@ -116,8 +116,13 @@ let
               else
                 { }
             );
+
+          authorSpan = ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>'';
         in
-        ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>''
+        if author ? "website" && authorKey != "leon_schuermann" then
+          ''<a href="${author.website}">${authorSpan}</a>''
+        else
+          authorSpan
       ) pub.authors
     );
 
@@ -226,6 +231,8 @@ in
 
         <h2>Selected Publications</h2>
         ${pubList (_: p: (p.selected or false)) false false}
+
+        <hr>
 
         <h2>Conference / Workshop Papers</h2>
         ${pubList (_: p: p.type == "paper") false true}

@@ -114,12 +114,14 @@ authors:
       princeton:
     first: Amit
     last: Levy
+    website: "https://www.amitlevy.com/"
 
   anthony_tarbinian:
     affiliations:
       ucsd:
     first: Anthony
     last: Tarbinian
+    website: "https://atarbinian.com/"
 
   arun_thomas:
     affiliations:
@@ -132,36 +134,42 @@ authors:
       uva:
     first: Brad
     last: Campbell
+    website: "https://engineering.virginia.edu/faculty/brad-campbell"
 
   branden_ghena:
     affiliations:
       northwestern:
     first: Branden
     last: Ghena
+    website: "https://brandenghena.com/"
 
   frank_duerr:
     affiliations:
       uni_stuttgart:
     first: Frank
     last: Duerr
+    website: "https://www.ipvs.uni-stuttgart.de/institute/team/Duerr/"
 
   gongqi_huang:
     affiliations:
       princeton:
     first: Gongqi
     last: Huang
+    website: "https://gongqihuang.com/"
 
   jack_toubes:
     affiliations:
       princeton:
     first: Jack
     last: Toubes
+    website: "https://jacktoubes.com/"
 
   jingyuan_chen:
     affiliations:
       princeton:
     first: Jingyuan
     last: Chen
+    website: "https://leochanj105.github.io/"
 
   leon_schuermann:
     affiliations:
@@ -171,48 +179,56 @@ authors:
         to: 2022-04
     first: Leon
     last: Schuermann
+    website: "https://leon.schuermann.io/"
 
   mae_milano:
     affiliations:
       princeton:
     first: Mae
     last: Milano
+    website: "https://www.languagesforsyste.ms/"
 
   natalie_popescu:
     affiliations:
       princeton:
     first: Natalie
     last: Popescu
+    website: "https://www.cs.princeton.edu/~npopescu/"
 
   pat_pannuto:
     affiliations:
       ucsd:
     first: Pat
     last: Pannuto
+    website: "https://patpannuto.com/"
 
   phillip_levis:
     affiliations:
       stanford:
     first: Phillip
     last: Levis
+    website: "https://csl.stanford.edu/~pal/"
 
   samir_rashid:
     affiliations:
       ucsd:
     first: Samir
     last: Rashid
+    website: "https://godsped.com/"
 
   shai_caspin:
     affiliations:
       princeton:
     first: Shai
     last: Caspin
+    website: "https://www.cs.princeton.edu/~sc4479/"
 
   tyler_potyondy:
     affiliations:
       ucsd:
     first: Tyler
     last: Potyondy
+    website: "https://tylerpotyondy.com/"
 
 # Publications in reverse-chronological order:
 publications:
