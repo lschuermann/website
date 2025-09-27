@@ -22,23 +22,13 @@
   };
 
   institutions = {
+    northwestern = {
+      institution = "Northwestern University";
+      country = "USA";
+    };
+
     princeton = {
       institution = "Princeton University";
-      country = "USA";
-    };
-
-    uni_stuttgart = {
-      institution = "University of Stuttgart";
-      country = "Germany";
-    };
-
-    zerorisc = {
-      institution = "zeroRISC Inc.";
-      country = "USA";
-    };
-
-    ucsd = {
-      institution = "University of Californina, San Diego";
       country = "USA";
     };
 
@@ -47,13 +37,23 @@
       country = "USA";
     };
 
+    ucsd = {
+      institution = "University of Californina, San Diego";
+      country = "USA";
+    };
+
+    uni_stuttgart = {
+      institution = "University of Stuttgart";
+      country = "Germany";
+    };
+
     uva = {
       institution = "Unversity of Virginia";
       country = "USA";
     };
 
-    northwestern = {
-      institution = "Northwestern University";
+    zerorisc = {
+      institution = "zeroRISC Inc.";
       country = "USA";
     };
   };
