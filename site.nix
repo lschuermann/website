@@ -1,6 +1,11 @@
-{ gitRev, baseUrl ? "https://leon.schuermann.io", doCheck ? true, renderBlogDrafts ? false }:
+{
+  gitRev,
+  baseUrl ? "https://leon.schuermann.io",
+  doCheck ? true,
+  renderBlogDrafts ? false,
+}:
 
-with import <nixpkgs> {};
+with import <nixpkgs> { };
 with import ./util.nix pkgs;
 
 let
@@ -14,19 +19,23 @@ let
     assetsPath = "/assets/";
 
     headerNavPages = [
-      { id = "index";
+      {
+        id = "index";
         title = "Home";
       }
-      { id = "publications";
+      {
+        id = "publications";
         title = "Publications";
       }
-      { id = "blog";
+      {
+        id = "blog";
         title = "Blog";
       }
     ];
 
     footerNavPages = [
-      { id = "legal";
+      {
+        id = "legal";
         title = "Legal";
       }
     ];
@@ -41,38 +50,42 @@ let
     (import ./blog.nix renderBlogDrafts)
   ];
 
-  ensureUnique = desc: pred: list:
-    (lib.foldl ({ newlist, knownvals }: elem:
-      if builtins.elem (pred elem) knownvals then
-        abort "${desc} is not unique, non-unique value: ${builtins.toString (pred elem)}"
-      else
-        {
-          newlist = newlist ++ [elem];
-          knownvals = knownvals ++ [(pred elem)];
-        }
-    ) { newlist = []; knownvals = []; } list).newlist;
+  ensureUnique =
+    desc: pred: list:
+    (lib.foldl
+      (
+        { newlist, knownvals }:
+        elem:
+        if builtins.elem (pred elem) knownvals then
+          abort "${desc} is not unique, non-unique value: ${builtins.toString (pred elem)}"
+        else
+          {
+            newlist = newlist ++ [ elem ];
+            knownvals = knownvals ++ [ (pred elem) ];
+          }
+      )
+      {
+        newlist = [ ];
+        knownvals = [ ];
+      }
+      list
+    ).newlist;
 
-  rec_page_eval = self: (
-    lib.listToAttrs (
+  rec_page_eval =
+    self:
+    (lib.listToAttrs (
       builtins.map (applied: lib.nameValuePair applied.meta.pageId applied) (
         ensureUnique "pageUrl" (applied: applied.meta.url) (
           ensureUnique "filePath" (applied: applied.meta.filePath) (
             ensureUnique "pageId" (applied: applied.meta.pageId) (
-              lib.flatten (
-                builtins.map (page_fn:
-                  page_fn (site_page_args // { pages = self; })
-                ) page_definitions
-              )
+              lib.flatten (builtins.map (page_fn: page_fn (site_page_args // { pages = self; })) page_definitions)
             )
           )
         )
       )
-    )
-  );
-
+    ));
 
   applied_pages = lib.fix rec_page_eval;
-
 
   static_dir = ./static;
 
@@ -97,29 +110,31 @@ let
           # Fontawesome & academicons logos
           ln -s "${pkgs.font-awesome_4}/share/fonts/opentype/FontAwesome.otf" \
             ./assets/font/fontawesome4.otf
-          ln -s "${pkgs.fetchFromGitHub {
-            owner = "jpswalsh";
-            repo = "academicons";
-            rev = "v1.9.4";
-            sha256 = "sha256-mGHqOc0Q3cTXlziLmWETd4QrmF4++4RIbaJ/3yfAdVg=";
-          }}/fonts/academicons.ttf" ./assets/font/academicons.ttf
+          ln -s "${
+            pkgs.fetchFromGitHub {
+              owner = "jpswalsh";
+              repo = "academicons";
+              rev = "v1.9.4";
+              sha256 = "sha256-mGHqOc0Q3cTXlziLmWETd4QrmF4++4RIbaJ/3yfAdVg=";
+            }
+          }/fonts/academicons.ttf" ./assets/font/academicons.ttf
 
           cp -rf . $out
         '';
       })
-    ] ++ (
-      lib.mapAttrsToList (_: page:
-        let
-          meta = page.meta;
-          content = page.content;
-        in
-          writeTextFile {
-            name = lib.last (lib.splitString "/" meta.filePath);
-            text = content;
-            destination = meta.filePath;
-          }
-      ) applied_pages
-    );
+    ]
+    ++ (lib.mapAttrsToList (
+      _: page:
+      let
+        meta = page.meta;
+        content = page.content;
+      in
+      writeTextFile {
+        name = lib.last (lib.splitString "/" meta.filePath);
+        text = content;
+        destination = meta.filePath;
+      }
+    ) applied_pages);
   };
 
   checkedOutput = stdenvNoCC.mkDerivation {
@@ -129,11 +144,9 @@ let
     # ensures that they're built. They also operate on the final
     # output, which allows them to do relative path traversal in the
     # output derivation:
-    nativeBuildInputs =
-      builtins.map
-        (page: page.validator "${output}")
-        (lib.filter (page: page.validator != null) (
-          builtins.attrValues applied_pages));
+    nativeBuildInputs = builtins.map (page: page.validator "${output}") (
+      lib.filter (page: page.validator != null) (builtins.attrValues applied_pages)
+    );
 
     # Don't require an explicit source attribute
     dontUnpack = true;
@@ -150,4 +163,4 @@ let
   };
 
 in
-  if doCheck then checkedOutput else output
+if doCheck then checkedOutput else output

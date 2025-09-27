@@ -1,16 +1,36 @@
-{ lib, util, assetsPath, pages, ... }@site_args: let
+{
+  lib,
+  util,
+  assetsPath,
+  pages,
+  ...
+}@site_args:
+let
 
-  publicationLink = key:
+  publicationLink =
+    key:
     if (builtins.hasAttr key pubs) then
       "${pages.publications.meta.url}#${key}"
     else
       throw "Publicaton with key ${key} not defined!";
 
   fontIcons = {
-    doi = [ "academicons" "&#xe97e;" ];
-    link = [ "fontawesome4" "&#xf0c1;" ];
-    pdf = [ "fontawesome4" "&#xf1c1;" ];
-    globe = [ "fontawesome4" "&#xf0ac;" ];
+    doi = [
+      "academicons"
+      "&#xe97e;"
+    ];
+    link = [
+      "fontawesome4"
+      "&#xf0c1;"
+    ];
+    pdf = [
+      "fontawesome4"
+      "&#xf1c1;"
+    ];
+    globe = [
+      "fontawesome4"
+      "&#xf0ac;"
+    ];
   };
 
   typeLabel = {
@@ -202,8 +222,7 @@
     "OSDI25" = {
       type = "conference";
       abbrev = "OSDI '25";
-      name =
-        "19th USENIX Symposium on Operating Systems Design and Implementation";
+      name = "19th USENIX Symposium on Operating Systems Design and Implementation";
       website = "https://www.usenix.org/conference/osdi25";
     };
 
@@ -241,8 +260,7 @@
     "OSDI23" = {
       type = "conference";
       abbrev = "OSDI '23";
-      name =
-        "17th USENIX Symposium on Operating Systems Design and Implementation";
+      name = "17th USENIX Symposium on Operating Systems Design and Implementation";
       website = "https://www.usenix.org/conference/osdi23";
     };
 
@@ -261,12 +279,30 @@
 
       title = "Tock: From Research To Securing 10 Million Computers";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "brad_campbell" "uva" ]
-        [ "branden_ghena" "northwestern" ]
-        [ "phillip_levis" "stanford" ]
-        [ "amit_levy" "princeton" ]
-        [ "pat_pannuto" "ucsd" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "brad_campbell"
+          "uva"
+        ]
+        [
+          "branden_ghena"
+          "northwestern"
+        ]
+        [
+          "phillip_levis"
+          "stanford"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
+        [
+          "pat_pannuto"
+          "ucsd"
+        ]
       ];
 
       selected = true;
@@ -280,12 +316,30 @@
 
       title = "Building Bridges: Safe Interactions with Foreign Languages through Omniglot";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "jack_toubes" "princeton" ]
-        [ "tyler_potyondy" "ucsd" ]
-        [ "pat_pannuto" "ucsd" ]
-        [ "mae_milano" "princeton" ]
-        [ "amit_levy" "princeton" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "jack_toubes"
+          "princeton"
+        ]
+        [
+          "tyler_potyondy"
+          "ucsd"
+        ]
+        [
+          "pat_pannuto"
+          "ucsd"
+        ]
+        [
+          "mae_milano"
+          "princeton"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
       ];
 
       selected = true;
@@ -300,14 +354,28 @@
       type = "paper";
       venue = "SPICES24";
 
-      title =
-        "Tabula Rasa: Starting Safe Stays Safe";
+      title = "Tabula Rasa: Starting Safe Stays Safe";
       authors = [
-        [ "tyler_potyondy" "ucsd" ]
-        [ "samir_rashid" "ucsd" ]
-        [ "leon_schuermann" "princeton" ]
-        [ "anthony_tarbinian" "ucsd" ]
-        [ "pat_pannuto" "ucsd" ]
+        [
+          "tyler_potyondy"
+          "ucsd"
+        ]
+        [
+          "samir_rashid"
+          "ucsd"
+        ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "anthony_tarbinian"
+          "ucsd"
+        ]
+        [
+          "pat_pannuto"
+          "ucsd"
+        ]
       ];
 
       pdf = "https://www.ewsn.org/file-repository/ewsn2024/SPICES_2024_CamReady_7.pdf";
@@ -320,12 +388,20 @@
       type = "paper";
       venue = "KISV24";
 
-      title =
-        "Bridge: A Leak-Free Hardware-Software Architecture for Parallel Embedded Systems";
+      title = "Bridge: A Leak-Free Hardware-Software Architecture for Parallel Embedded Systems";
       authors = [
-        [ "gongqi_huang" "princeton" ]
-        [ "leon_schuermann" "princeton" ]
-        [ "amit_levy" "princeton" ]
+        [
+          "gongqi_huang"
+          "princeton"
+        ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
       ];
 
       doi = "10.1145/3698576.3698765";
@@ -336,14 +412,28 @@
       type = "talk";
       venue = "RustNL24";
 
-      title =
-        "Safe Interactions with Foreign Languages through Encapsulated Functions";
+      title = "Safe Interactions with Foreign Languages through Encapsulated Functions";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "jack_toubes" "princeton" ]
-        [ "tyler_potyondy" "ucsd" ]
-        [ "mae_milano" "princeton" ]
-        [ "amit_levy" "princeton" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "jack_toubes"
+          "princeton"
+        ]
+        [
+          "tyler_potyondy"
+          "ucsd"
+        ]
+        [
+          "mae_milano"
+          "princeton"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
       ];
 
       slides_pdf = "/publications/2024_Schuermann_Encapsulated-Functions_RustNL24_Slides.pdf";
@@ -354,12 +444,20 @@
       type = "poster";
       venue = "SOSP23";
 
-      title =
-        "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
+      title = "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "arun_thomas" "zerorisc" ]
-        [ "amit_levy" "princeton" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "arun_thomas"
+          "zerorisc"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
       ];
 
       pdf = "/publications/2023_Schuermann_Encapsulated-Functions_SOSP23-poster.pdf";
@@ -370,12 +468,20 @@
       type = "paper";
       venue = "KISV23";
 
-      title =
-        "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
+      title = "Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "arun_thomas" "zerorisc" ]
-        [ "amit_levy" "princeton" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "arun_thomas"
+          "zerorisc"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
       ];
 
       doi = "10.1145/3625275.3625397";
@@ -390,9 +496,18 @@
         "HELIX: Co-designing the Hardware, Software and Network Protocol "
         + "for Reliable High-Bandwidth Communication in Constrained Systems";
       authors = [
-        [ "leon_schuermann" "princeton" ]
-        [ "amit_levy" "princeton" ]
-        [ "frank_duerr" "uni_stuttgart" ]
+        [
+          "leon_schuermann"
+          "princeton"
+        ]
+        [
+          "amit_levy"
+          "princeton"
+        ]
+        [
+          "frank_duerr"
+          "uni_stuttgart"
+        ]
       ];
 
       pdf = "/publications/2023_Schuermann_HELIX_OSDI23-poster.pdf";
@@ -403,15 +518,17 @@
       type = "thesis";
 
       thesisLabel = "Master' Thesis";
-      thesisInstitution =
-        "University of Stuttgart, Institute of Parallel and Distributed Systems";
+      thesisInstitution = "University of Stuttgart, Institute of Parallel and Distributed Systems";
 
       title =
         "Design and Evaluation of System Concepts and Protocols for "
         + "Lossless Hardware-Assisted Streaming of Real-Time Measurement Data "
         + "over IP Networks";
       authors = [
-        [ "leon_schuermann" "uni_stuttgart" ]
+        [
+          "leon_schuermann"
+          "uni_stuttgart"
+        ]
       ];
 
       doi = "10.18419/opus-12456";
@@ -421,29 +538,37 @@
       date = "2021-12-05";
       type = "techreport";
 
-      techreportPublisher =
-        "University of Stuttgart, Institute of Parallel and Distributed Systems";
+      techreportPublisher = "University of Stuttgart, Institute of Parallel and Distributed Systems";
       techreportNumber = "TR-2021-02";
 
       title =
         "Implementation and Evaluation of Time Synchronization Mechanisms for "
         + "Generic Embedded Systems for Time Sensitive Networking (TSN)";
       authors = [
-        [ "leon_schuermann" "uni_stuttgart" ]
-        [ "frank_duerr" "uni_stuttgart" ]
+        [
+          "leon_schuermann"
+          "uni_stuttgart"
+        ]
+        [
+          "frank_duerr"
+          "uni_stuttgart"
+        ]
       ];
 
       pdf = "/publications/2021_Schuermann_ptp-time-sync-embedded-systems.pdf";
 
-      extraLinks = [{
-        fontIcon = fontIcons.link;
-        url = "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=TR-2021-02&mod=1&engl=1&inst=FAK";
-        label = "Online Record";
-      }];
+      extraLinks = [
+        {
+          fontIcon = fontIcons.link;
+          url = "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=TR-2021-02&mod=1&engl=1&inst=FAK";
+          label = "Online Record";
+        }
+      ];
     };
   };
 
-  expandLinks = pub:
+  expandLinks =
+    pub:
     (lib.optional (pub ? "doi") {
       fontIcon = fontIcons.doi;
       url = "https://doi.org/${pub.doi}";
@@ -464,20 +589,21 @@
       url = pub.webpage;
       label = "Webpage";
     })
-    ++ (pub.extraLinks or []);
+    ++ (pub.extraLinks or [ ]);
 
-  htmlLinks = pub:
+  htmlLinks =
+    pub:
     lib.concatStringsSep ", " (
-      builtins.map (link:
+      builtins.map (
+        link:
         ''<a href="${link.url}">${
           if link ? fontIcon then
-            ''<span class="icon-${builtins.head link.fontIcon}">${
-              builtins.head (builtins.tail link.fontIcon)} </span>''
+            ''<span class="icon-${builtins.head link.fontIcon}">${builtins.head (builtins.tail link.fontIcon)} </span>''
           else if link ? imageIcon then
             ''<img class="link-icon" src="${builtins.head link.imageIcon}"${
-              lib.optionalString
-                (lib.length link.imageIcon > 1)
-                ''balt="${builtins.head (builtins.tail link.imageIcon)}"''
+              lib.optionalString (
+                lib.length link.imageIcon > 1
+              ) ''balt="${builtins.head (builtins.tail link.imageIcon)}"''
             }>''
           else
             ""
@@ -485,96 +611,114 @@
       ) (expandLinks pub)
     );
 
-  htmlAuthorString = pub:
+  htmlAuthorString =
+    pub:
     lib.concatStringsSep ", " (
-      builtins.map (a: let
-        authorKey = builtins.head a;
-        affiliationKey = builtins.head (builtins.tail a);
-        author = authors."${authorKey}";
-        affiliation = author.affiliations."${affiliationKey}";
-        fullName = "${author.first} ${author.last}";
-      in
+      builtins.map (
+        a:
+        let
+          authorKey = builtins.head a;
+          affiliationKey = builtins.head (builtins.tail a);
+          author = authors."${authorKey}";
+          affiliation = author.affiliations."${affiliationKey}";
+          fullName = "${author.first} ${author.last}";
+        in
         ''<span title="${fullName}, ${affiliation.institution}">${fullName}</span>''
-      ) pub.authors);
+      ) pub.authors
+    );
 
-  paperPosterTemplate = pub: let
-    venue = venues."${pub.venue}";
-    dateFmt = util.expandDate pub.date;
-  in ''
-    <b>${pub.title}</b><br>
-    <i>${htmlAuthorString pub}</i><br>
-    ${if pub.unpublished or false then "To appear in" else "In"}
-    ${venue.abbrev}: <i>${venue.name}</i>${
-      if venue ? "remark" then ", ${venue.remark}" else ""
-    }, ${dateFmt.B} ${dateFmt.Y}${
-      lib.optionalString
-        (pub.best_paper or false)
-        ", <strong>Awarded Best Paper!</strong>"
-    }<br>
-    ${htmlLinks pub}
-  '';
+  paperPosterTemplate =
+    pub:
+    let
+      venue = venues."${pub.venue}";
+      dateFmt = util.expandDate pub.date;
+    in
+    ''
+      <b>${pub.title}</b><br>
+      <i>${htmlAuthorString pub}</i><br>
+      ${if pub.unpublished or false then "To appear in" else "In"}
+      ${venue.abbrev}: <i>${venue.name}</i>${
+        if venue ? "remark" then ", ${venue.remark}" else ""
+      }, ${dateFmt.B} ${dateFmt.Y}${
+        lib.optionalString (pub.best_paper or false) ", <strong>Awarded Best Paper!</strong>"
+      }<br>
+      ${htmlLinks pub}
+    '';
 
-  techreportTemplate = pub: let
-    dateFmt = util.expandDate pub.date;
-  in ''
-    <b>${pub.title}</b><br>
-    <i>${htmlAuthorString pub}</i><br>
-    ${pub.techreportPublisher}, Technical Report ${pub.techreportNumber}, ${dateFmt.B} ${dateFmt.Y}<br>
-    ${htmlLinks pub}
-  '';
+  techreportTemplate =
+    pub:
+    let
+      dateFmt = util.expandDate pub.date;
+    in
+    ''
+      <b>${pub.title}</b><br>
+      <i>${htmlAuthorString pub}</i><br>
+      ${pub.techreportPublisher}, Technical Report ${pub.techreportNumber}, ${dateFmt.B} ${dateFmt.Y}<br>
+      ${htmlLinks pub}
+    '';
 
-  thesisTemplate = pub: let
-    dateFmt = util.expandDate pub.date;
-  in ''
-    <b>${pub.title}</b><br>
-    <i>${htmlAuthorString pub}</i><br>
-    ${pub.thesisLabel}, ${pub.thesisInstitution}, ${dateFmt.B} ${dateFmt.Y}<br>
-    ${htmlLinks pub}
-  '';
+  thesisTemplate =
+    pub:
+    let
+      dateFmt = util.expandDate pub.date;
+    in
+    ''
+      <b>${pub.title}</b><br>
+      <i>${htmlAuthorString pub}</i><br>
+      ${pub.thesisLabel}, ${pub.thesisInstitution}, ${dateFmt.B} ${dateFmt.Y}<br>
+      ${htmlLinks pub}
+    '';
 
-  talkTemplate = pub: let
-    venue = venues."${pub.venue}";
-    dateFmt = util.expandDate pub.date;
-  in ''
-    <b>${pub.title}</b><br>
-    <i>${htmlAuthorString pub}</i><br>
-    At
-    ${lib.optionalString (venue ? "abbrev") "${venue.abbrev}: "}
-    <i>${venue.name}</i>${
-      if venue ? "remark" then ", ${venue.remark}" else ""
-    }, ${dateFmt.B} ${dateFmt.Y}<br>
-    ${htmlLinks pub}
-  '';
+  talkTemplate =
+    pub:
+    let
+      venue = venues."${pub.venue}";
+      dateFmt = util.expandDate pub.date;
+    in
+    ''
+      <b>${pub.title}</b><br>
+      <i>${htmlAuthorString pub}</i><br>
+      At
+      ${lib.optionalString (venue ? "abbrev") "${venue.abbrev}: "}
+      <i>${venue.name}</i>${
+        if venue ? "remark" then ", ${venue.remark}" else ""
+      }, ${dateFmt.B} ${dateFmt.Y}<br>
+      ${htmlLinks pub}
+    '';
 
-  entryTemplate = pub: ({
-    "paper" = paperPosterTemplate;
-    "poster" = paperPosterTemplate;
-    "techreport" = techreportTemplate;
-    "thesis" = thesisTemplate;
-    "talk" = talkTemplate;
-  })."${pub.type}" pub;
+  entryTemplate =
+    pub:
+    ({
+      "paper" = paperPosterTemplate;
+      "poster" = paperPosterTemplate;
+      "techreport" = techreportTemplate;
+      "thesis" = thesisTemplate;
+      "talk" = talkTemplate;
+    })."${pub.type}"
+      pub;
 
   pubList = pubFilter: addPubtypeAnnotation: generateAnchor: ''
     <ul>
       ${lib.concatStringsSep "\n" (
-        builtins.map (pub:
-          ''<li><p${lib.optionalString generateAnchor " id=\"${pub.name}\""}>${
-            lib.optionalString addPubtypeAnnotation ''[${typeLabel."${pub.value.type}"}] ''
-          }${entryTemplate pub.value}</p></li>''
-        ) (builtins.sort
-          (a: b: a.value.date > b.value.date)
-          (builtins.filter
-            (pub: pubFilter pub.name pub.value)
-            (lib.mapAttrsToList lib.nameValuePair pubs)
+        builtins.map
+          (
+            pub:
+            ''<li><p${lib.optionalString generateAnchor " id=\"${pub.name}\""}>${lib.optionalString addPubtypeAnnotation ''[${typeLabel."${pub.value.type}"}] ''}${entryTemplate pub.value}</p></li>''
           )
-        )
+          (
+            builtins.sort (a: b: a.value.date > b.value.date) (
+              builtins.filter (pub: pubFilter pub.name pub.value) (lib.mapAttrsToList lib.nameValuePair pubs)
+            )
+          )
       )}
     </ul>
   '';
 
-in [
+in
+[
   (util.import_nixfm ./page.nix.html (
-    site_args // {
+    site_args
+    // {
       # For main pages, just provide a simple lower-case name of the page as the
       # site ID
       pageId = "publications";
@@ -597,7 +741,14 @@ in [
         ${pubList (_: p: p.type == "thesis") false true}
 
         <h2>Reports, Posters and Other Publications</h2>
-        ${pubList (_: p: !(builtins.elem p.type ["thesis" "paper" "talk"])) false true}
+        ${pubList (
+          _: p:
+          !(builtins.elem p.type [
+            "thesis"
+            "paper"
+            "talk"
+          ])
+        ) false true}
       '';
 
       export = {
@@ -606,13 +757,14 @@ in [
           venues
           pubs
           publicationLink
-        ;
+          ;
       };
     }
   ))
 
   (util.import_nixfm ./page.nix.html (
-    site_args // {
+    site_args
+    // {
       pageId = "publications_chronological";
       pageUrl = "/publications_chronological.html";
       pageNavidMatches = [ "publications" ];
