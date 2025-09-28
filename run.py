@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i python3 -p python3 git python3Packages.pyinotify nix
+#! nix-shell --pure -i python3 -p python3 git python3Packages.pyinotify nix cacert
 
 import os, sys, time
 import tempfile
