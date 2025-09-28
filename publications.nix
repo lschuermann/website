@@ -1,8 +1,10 @@
 {
   lib,
+  pkgs,
   util,
   assetsPath,
   pages,
+  urlPrefix,
   ...
 }@site_args:
 let
@@ -229,7 +231,7 @@ in
 
       # content = "Something something I'm a well published researcher";
       content = ''
-        <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>.</p>
+        <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
         <h2>Selected Publications</h2>
         ${pubList (_: p: (p.selected or false)) false false}
@@ -275,10 +277,43 @@ in
 
       # content = "Something something I'm a well published researcher";
       content = ''
-        <p>Switch to a <a href="${pages.publications.meta.url}">categorical view</a>.</p>
+        <p>Switch to a <a href="${pages.publications.meta.url}">categorical view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
         ${pubList (_: _: true) true true}
       '';
     }
   ))
+
+  {
+    meta = rec {
+      pageId = "publications_yaml";
+      filePath = "/publications.yaml";
+      url = urlPrefix + filePath;
+    };
+
+    content = builtins.readFile ./publications.yml;
+
+    validator = null;
+  }
+
+  rec {
+    meta = {
+      pageId = "publications_yaml_html";
+      filePath = "/publications.yaml.html";
+      url = urlPrefix + meta.filePath;
+    };
+
+    content = builtins.readFile (
+      pkgs.runCommand "publications.yaml.html" { } ''
+        ${pkgs.chroma}/bin/chroma --html --html-lines --html-linkable-lines ${./publications.yml} >$out
+      ''
+    );
+
+    # Unfortunately, the chroma output is pretty far from
+    # validation. Therefore, we don't validate the HTML conformity of
+    # this page:
+    #
+    # validator = util.htmlValidator pkgs meta.pageId meta.filePath;
+    validator = null;
+  }
 ]

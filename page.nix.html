@@ -148,10 +148,7 @@ in
         siteTitle;
   });
 
-  validator = output: pkgs.runCommand "homepage-${pageId}-validator" {} ''
-     ${pkgs.validator-nu}/bin/vnu --filterpattern '^.*(Charmod C073).*$' "${output}${filePath}"
-    touch $out
-  '';
+  validator = util.htmlValidator pkgs pageId filePath;
 }
 
 ---pageTemplate

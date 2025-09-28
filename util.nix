@@ -278,6 +278,13 @@ let
 
   formatRFC3339Sec = p: with p; "${Y}-${m}-${d}T${k}:${M}:${S}${zColon}";
 
+  htmlValidator =
+    pkgs: pageId: filePath: output:
+    pkgs.runCommand "homepage-${pageId}-validator" { } ''
+      ${pkgs.validator-nu}/bin/vnu --filterpattern '^.*(Charmod C073).*$' "${output}${filePath}"
+      touch $out
+    '';
+
 in
 {
   inherit
@@ -290,5 +297,6 @@ in
     parseRFC3339Sec
     formatRFC822
     formatRFC3339Sec
+    htmlValidator
     ;
 }
