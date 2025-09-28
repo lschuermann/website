@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell --pure -i bash -p openssh bash git rsync nixfmt-tree nix cacert
+#! nix-shell --pure --keep SSH_AUTH_SOCK -i bash -p openssh bash git rsync nixfmt-tree nix cacert
 
 set -Eeuox pipefail
 
