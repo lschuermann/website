@@ -85,12 +85,21 @@ venues:
 
 # Institutions in alphabetical order:
 institutions:
+  cornell:
+    country: USA
+    institution: Cornell University
   northwestern:
     country: USA
     institution: Northwestern University
+  nyu:
+    contry: USA
+    institution: New York University
   princeton:
     country: USA
     institution: Princeton University
+  sentient_foundation:
+    country: USA
+    institution: Sentient Foundation
   stanford:
     country: USA
     institution: Stanford University
@@ -145,12 +154,46 @@ authors:
     last: Ghena
     website: https://brandenghena.com/
 
+  golev_oleg:
+    affiliations:
+      sentient_foundation:
+    first: Oleg A.
+    last: Golev
+    website: https://oleggolev.github.io/
+
   huang_gongqi:
     affiliations:
       princeton:
     first: Gongqi
     last: Huang
     website: https://gongqihuang.com/
+
+  jhala_ranjit:
+    affiliations:
+      ucsd:
+    first: Ranjit
+    last: Jhala
+    website: https://ranjitjhala.github.io/
+
+  johnson_evan:
+    affiliations:
+      nyu:
+    first: Evan
+    last: Johnson
+    website: https://enjhnsn2.github.io/
+
+  kaashoek_nicolaas:
+    affiliations:
+      princeton:
+    first: Nicolaas
+    last: Kaashoek
+    website: https://nickaashoek.gitlab.io/
+
+  lehmann_nico:
+    affiliations:
+      ucsd:
+    first: Nico
+    last: Lehmann
 
   levis_phillip:
     affiliations:
@@ -165,6 +208,20 @@ authors:
     first: Amit
     last: Levy
     website: https://www.amitlevy.com/
+
+  li_austin:
+    affiliations:
+      cornell:
+    first: Austin T.
+    last: Li
+    website: https://atli2001.github.io/
+
+  lloyd_wyatt:
+    affiliations:
+      princeton:
+    first: Wyatt
+    last: Lloyd
+    website: https://www.cs.princeton.edu/~wlloyd/
 
   milano_mae:
     affiliations:
@@ -201,6 +258,20 @@ authors:
     last: Rashid
     website: https://godsped.com/
 
+  rindisbacher_vivien:
+    affiliations:
+      ucsd:
+    first: Vivien
+    last: Rindisbacher
+    website: https://www.vivienrindisbacher.com/
+
+  savage_stefan:
+    affiliations:
+      ucsd:
+    first: Stefan
+    last: Savage
+    website: https://cseweb.ucsd.edu/~savage/
+
   schuermann_leon:
     affiliations:
       princeton:
@@ -211,6 +282,13 @@ authors:
     last: Schuermann
     website: https://leon.schuermann.io/
     native_lang_name: "Leon Schürmann"
+
+  stefan_deian:
+    affiliations:
+      ucsd:
+    first: Deian
+    last: Stefan
+    website: https://cseweb.ucsd.edu/~dstefan/
 
   tarbinian_anthony:
     affiliations:
@@ -232,8 +310,8 @@ authors:
     last: Toubes
     website: https://jacktoubes.com/
 
-# Publications in reverse-chronological order:
-publications:
+# Publications that I'm a (co-)author on, in reverse-chronological order:
+own_publications:
   acsac25-scuba:
     type: paper
     date: '2025-12-08'
@@ -438,3 +516,47 @@ publications:
           - '&#xf0c1;'
         label: Online Record
         url: "http://www2.informatik.uni-stuttgart.de/cgi-bin/NCSTRL/NCSTRL_view.pl?id=TR-2021-02&mod=1&engl=1&inst=FAK"
+
+# Publications that I'm **not** a (co-)author on, but have some other connection
+# to (e.g., as an acknowledgment) in reverse-chronological, and then
+# alphabetical order by title:
+acknowledged_contributions:
+  sosp25-radical:
+    type: paper
+    date: '2025-10-14'
+    unpublished: true
+    acknowledged: true
+
+    title: >
+      Running Consistent Applications Closer to Users with Radical for Lower
+      Latency
+
+    authors:
+      - kaashoek_nicolaas@princeton
+      - golev_oleg@sentient_foundation
+      - li_austin@cornell
+      - levy_amit@princeton
+      - lloyd_wyatt@princeton
+
+    venue: SOSP25
+
+  sosp25-ticktock:
+    type: paper
+    date: '2025-10-14'
+    unpublished: true
+    acknowledged: true
+
+    title: >
+      TickTock: Verified Isolation in a Production Embedded OS
+
+    authors:
+      - rindisbacher_vivien@ucsd
+      - johnson_evan@nyu
+      - lehmann_nico@ucsd
+      - potyondy_tyler@ucsd
+      - pannuto_pat@ucsd
+      - savage_stefan@ucsd
+      - stefan_deian@ucsd
+      - jhala_ranjit@ucsd
+
+    venue: SOSP25

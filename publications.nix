@@ -13,7 +13,9 @@ let
 
   publicationLink =
     key:
-    if (builtins.hasAttr key data.publications) then
+    if (builtins.hasAttr key data.own_publications) then
+      "${pages.publications.meta.url}#${key}"
+    else if (builtins.hasAttr key data.acknowledged_contributions) then
       "${pages.publications.meta.url}#${key}"
     else
       throw "Publicaton with key ${key} not defined!";
@@ -200,7 +202,7 @@ let
     })."${pub.type}"
       pub;
 
-  pubList = pubFilter: addPubtypeAnnotation: generateAnchor: ''
+  pubList = publicationsData: pubFilter: addPubtypeAnnotation: generateAnchor: ''
     <ul>
       ${lib.concatStringsSep "\n" (
         builtins.map
@@ -211,7 +213,7 @@ let
           (
             builtins.sort (a: b: a.value.date > b.value.date) (
               builtins.filter (pub: pubFilter pub.name pub.value) (
-                lib.mapAttrsToList lib.nameValuePair data.publications
+                lib.mapAttrsToList lib.nameValuePair publicationsData
               )
             )
           )
@@ -234,21 +236,21 @@ in
         <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
         <h2>Selected Publications</h2>
-        ${pubList (_: p: (p.selected or false)) false false}
+        ${pubList data.own_publications (_: p: (p.selected or false)) false false}
 
         <hr>
 
         <h2>Conference / Workshop Papers</h2>
-        ${pubList (_: p: p.type == "paper") false true}
+        ${pubList data.own_publications (_: p: p.type == "paper") false true}
 
         <h2>Talks</h2>
-        ${pubList (_: p: p.type == "talk") false true}
+        ${pubList data.own_publications (_: p: p.type == "talk") false true}
 
         <h2>Theses</h2>
-        ${pubList (_: p: p.type == "thesis") false true}
+        ${pubList data.own_publications (_: p: p.type == "thesis") false true}
 
         <h2>Reports, Posters, and Other Publications</h2>
-        ${pubList (
+        ${pubList data.own_publications (
           _: p:
           !(builtins.elem p.type [
             "thesis"
@@ -279,7 +281,22 @@ in
       content = ''
         <p>Switch to a <a href="${pages.publications.meta.url}">categorical view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
-        ${pubList (_: _: true) true true}
+        ${pubList data.own_publications (_: _: true) true true}
+      '';
+    }
+  ))
+
+  (util.import_nixfm ./page.nix.html (
+    site_args
+    // {
+      pageId = "acknowledged_contributions";
+      pageUrl = "/acknowledged_contributions.html";
+
+      content = ''
+        <h1 class="first-heading">Acknowledgments in Publications:</h1>
+        <p>Below is a list of papers I had the honor of contributing to one way or another:</p>
+
+        ${pubList data.acknowledged_contributions (_: _: true) true true}
       '';
     }
   ))
