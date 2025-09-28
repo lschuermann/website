@@ -293,7 +293,7 @@ in
       pageUrl = "/acknowledged_contributions.html";
 
       content = ''
-        <h1 class="first-heading">Acknowledgments in Publications:</h1>
+        <h1 class="first-heading">Acknowledgments in Publications</h1>
         <p>Below is a list of papers I had the honor of contributing to one way or another:</p>
 
         ${pubList data.acknowledged_contributions (_: _: true) true true}
