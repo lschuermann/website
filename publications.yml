@@ -335,7 +335,6 @@ own_publications:
     type: paper
     date: '2025-10-14'
     selected: true
-    unpublished: true
 
     title: >
       Tock: From Research To Securing 10 Million Computers
@@ -347,6 +346,8 @@ own_publications:
       - levis_phillip@stanford
       - levy_amit@princeton
       - pannuto_pat@ucsd
+
+    doi: 10.1145/3731569.3764828
 
     venue: SOSP25
 
@@ -525,7 +526,6 @@ acknowledged_contributions:
   sosp25-radical:
     type: paper
     date: '2025-10-14'
-    unpublished: true
     acknowledged: true
 
     title: >
@@ -539,12 +539,13 @@ acknowledged_contributions:
       - levy_amit@princeton
       - lloyd_wyatt@princeton
 
+    doi: 10.1145/3731569.3764831
+
     venue: SOSP25
 
   sosp25-ticktock:
     type: paper
     date: '2025-10-14'
-    unpublished: true
     acknowledged: true
 
     title: >
@@ -559,5 +560,7 @@ acknowledged_contributions:
       - savage_stefan@ucsd
       - stefan_deian@ucsd
       - jhala_ranjit@ucsd
+
+    doi: 10.1145/3731569.3764856
 
     venue: SOSP25
