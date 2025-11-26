@@ -318,7 +318,7 @@ own_publications:
     date: '2025-12-08'
     unpublished: true
 
-    title: >
+    title: >-
       End-to-End Encrypted Applications with Strong Consistency Under
       Byzantine Actors
 
@@ -336,7 +336,7 @@ own_publications:
     date: '2025-10-14'
     selected: true
 
-    title: >
+    title: >-
       Tock: From Research To Securing 10 Million Computers
 
     authors:
@@ -356,7 +356,7 @@ own_publications:
     date: '2025-07-07'
     selected: true
 
-    title: >
+    title: >-
       Building Bridges: Safe Interactions with Foreign Languages
       through Omniglot
 
@@ -377,7 +377,7 @@ own_publications:
     type: paper
     date: '2024-12-10'
 
-    title: >
+    title: >-
       Tabula Rasa: Starting Safe Stays Safe
 
     authors:
@@ -396,7 +396,7 @@ own_publications:
     type: paper
     date: '2024-11-03'
 
-    title: >
+    title: >-
       Bridge: A Leak-Free Hardware-Software Architecture for Parallel
       Embedded Systems
 
@@ -411,7 +411,7 @@ own_publications:
   rustnl2024-encapsulated-functions:
     date: '2024-05-07'
 
-    title: >
+    title: >-
       Safe Interactions with Foreign Languages through Encapsulated
       Functions
 
@@ -431,7 +431,7 @@ own_publications:
     type: poster
     date: '2023-10-24'
 
-    title: >
+    title: >-
       Encapsulated Functions: Fortifying Rust's FFI in Embedded Systems
 
     authors:
@@ -446,7 +446,7 @@ own_publications:
     type: paper
     date: '2023-10-23'
 
-    title: >
+    title: >-
       Encapsulated Functions: Fortifying Rust's FFI in Embedded
       Systems
 
@@ -462,7 +462,7 @@ own_publications:
     date: '2023-07-10'
     type: poster
 
-    title: >
+    title: >-
       HELIX: Co-designing the Hardware, Software and Network Protocol
       for Reliable High-Bandwidth Communication in Constrained Systems
 
@@ -479,7 +479,7 @@ own_publications:
     type: thesis
     date: '2022-04-20'
 
-    title: >
+    title: >-
       Design and Evaluation of System Concepts and Protocols for
       Lossless Hardware-Assisted Streaming of Real-Time Measurement
       Data over IP Networks
@@ -487,7 +487,7 @@ own_publications:
     authors:
       - schuermann_leon@uni_stuttgart
 
-    thesisInstitution: >
+    thesisInstitution: >-
       University of Stuttgart, Institute of Parallel and Distributed
       Systems
     thesisLabel: Master' Thesis
@@ -498,7 +498,7 @@ own_publications:
     type: techreport
     date: '2021-12-05'
 
-    title: >
+    title: >-
       Implementation and Evaluation of Time Synchronization Mechanisms
       for Generic Embedded Systems for Time Sensitive Networking (TSN)
 
@@ -507,7 +507,7 @@ own_publications:
       - duerr_frank@uni_stuttgart
 
     techreportNumber: TR-2021-02
-    techreportPublisher: >
+    techreportPublisher: >-
       University of Stuttgart, Institute of Parallel and Distributed
       Systems
 
@@ -528,7 +528,7 @@ acknowledged_contributions:
     date: '2025-10-14'
     acknowledged: true
 
-    title: >
+    title: >-
       Running Consistent Applications Closer to Users with Radical for Lower
       Latency
 
@@ -548,7 +548,7 @@ acknowledged_contributions:
     date: '2025-10-14'
     acknowledged: true
 
-    title: >
+    title: >-
       TickTock: Verified Isolation in a Production Embedded OS
 
     authors:
