@@ -348,6 +348,7 @@ own_publications:
       - pannuto_pat@ucsd
 
     doi: 10.1145/3731569.3764828
+    doi_repository: acmdl
 
     venue: SOSP25
 
@@ -406,6 +407,7 @@ own_publications:
       - levy_amit@princeton
 
     doi: 10.1145/3698576.3698765
+    doi_repository: acmdl
     venue: KISV24
 
   rustnl2024-encapsulated-functions:
@@ -456,6 +458,7 @@ own_publications:
       - levy_amit@princeton
 
     doi: 10.1145/3625275.3625397
+    doi_repository: acmdl
     venue: KISV23
 
   osdi23-helix-poster:
@@ -493,6 +496,7 @@ own_publications:
     thesisLabel: Master' Thesis
 
     doi: 10.18419/opus-12456
+    doi_repository: uni-stuttgart-opus
 
   2021-ptp-time-sync-embedded-systems:
     type: techreport
@@ -540,6 +544,7 @@ acknowledged_contributions:
       - lloyd_wyatt@princeton
 
     doi: 10.1145/3731569.3764831
+    doi_repository: acmdl
 
     venue: SOSP25
 
@@ -562,5 +567,6 @@ acknowledged_contributions:
       - jhala_ranjit@ucsd
 
     doi: 10.1145/3731569.3764856
+    doi_repository: acmdl
 
     venue: SOSP25
