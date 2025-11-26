@@ -1,5 +1,15 @@
 # Conference venues in reverse-chronological order:
 venues:
+  ASPLOS26:
+    type: conference
+    abbrev: "ASPLOS '26"
+    name: >-
+      The 30th ACM International Conference on Architectural Support
+      for Programming Languages and Operating Systems
+    website: "https://www.asplos-conference.org/asplos2026/"
+    start: 2025-03-22T00:00:00-04:00
+    end: 2025-03-26T23:59:59-04:00
+
   ACSAC25:
     type: conference
     abbrev: "ACSAC '25"
@@ -118,6 +128,13 @@ institutions:
 
 # Authors in alphabetical order:
 authors:
+  ackerman_adin:
+    affiliations:
+      ucsd:
+    first: Adin
+    last: Ackerman
+    website: https://adinack.dev/
+
   campbell_brad:
     affiliations:
       uva:
@@ -231,6 +248,13 @@ authors:
     last: Milano
     website: https://www.languagesforsyste.ms/
 
+  mugnier_eric:
+    affiliations:
+      ucsd:
+    first: Eric
+    last: Mugnier
+    website: https://emugnier.github.io/
+
   pannuto_pat:
     affiliations:
       ucsd:
@@ -313,6 +337,26 @@ authors:
 
 # Publications that I'm a (co-)author on, in reverse-chronological order:
 own_publications:
+  asplos26-abacus:
+    type: paper
+    date: '2025-03-22'
+    unpublished: true
+
+    title: >-
+      Rage Against the State Machine: Type-Stated Hardware Peripherals
+      for Increased Driver Correctness
+
+    authors:
+      - potyondy_tyler@ucsd
+      - tarbinian_anthony@ucsd
+      - schuermann_leon@princeton
+      - mugnier_eric@ucsd
+      - ackerman_adin@ucsd
+      - levy_amit@princeton
+      - pannuto_pat@ucsd
+
+    venue: ASPLOS26
+
   acsac25-scuba:
     type: paper
     date: '2025-12-08'
