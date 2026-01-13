@@ -360,7 +360,6 @@ own_publications:
   acsac25-scuba:
     type: paper
     date: '2025-12-08'
-    unpublished: true
 
     title: >-
       End-to-End Encrypted Applications with Strong Consistency Under
