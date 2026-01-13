@@ -29,7 +29,7 @@ venues:
   KISV25:
     type: workshop
     abbrev: "KISV '25"
-    name: "3nd Workshop on Kernel Isolation, Safety and Verification"
+    name: "3rd Workshop on Kernel Isolation, Safety and Verification"
     remark: "Co-located with SOSP '25"
     website: "https://kisv-workshop.github.io/"
     start: 2025-10-13T00:00:00+09:00
