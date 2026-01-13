@@ -614,3 +614,6 @@ acknowledged_contributions:
     doi_repository: acmdl
 
     venue: SOSP25
+
+reviewer_for:
+  - KISV25
