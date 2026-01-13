@@ -208,7 +208,7 @@ let
         builtins.map
           (
             pub:
-            ''<li><p${lib.optionalString generateAnchor " id=\"${pub.name}\""}>${lib.optionalString addPubtypeAnnotation ''[${typeLabel."${pub.value.type}"}] ''}${entryTemplate pub.value}</p></li>''
+            "<li><p${lib.optionalString generateAnchor " id=\"${pub.name}\""}>${lib.optionalString addPubtypeAnnotation "[${typeLabel."${pub.value.type}"}] "}${entryTemplate pub.value}</p></li>"
           )
           (
             builtins.sort (a: b: a.value.date > b.value.date) (
