@@ -43,7 +43,7 @@ while true; do
 done
 
 echo "Uploading site contents..." >&2
-rsync -avL --checksum --no-times result/ root@am.mvpn.schuermann.io:/var/www/leon-schuermann-io/
+rsync -avL --checksum --no-times result/ 'root@[fd68:503a:ea05:b3da:34da:dbff:feb5:82a0]:/var/www/leon-schuermann-io/'
 
 echo "Tagging site & pushing to GitHub..." >&2
 DEPLOY_TAG="$(date -u "+deploy-%Y%m%d-%H%M%S")"
