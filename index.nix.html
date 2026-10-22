@@ -1,195 +1,1003 @@
 ---nix
-{ content, footerContent, css, source_path, ... }:
+{
+  content,
+  footerContent,
+  css,
+  source_path,
+  ...
+}:
 { util, pages, ... }@site_args:
-  util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
-    site_args // {
-      # For main pages, just provide a simple lower-case name of the page as the
-      # site ID
-      pageId = "index";
+let
+  # Profile and contribution content, kept separate from its markup.
+  homepageData = {
+    profiles = [
+      {
+        label = "Email";
+        url = "mailto:leon@is.currently.online";
+        iconFont = "fontawesome4";
+        icon = "&#xf0e0;";
+      }
+      {
+        label = "Google Scholar";
+        url = "https://scholar.google.com/citations?user=6RWizG8AAAAJ";
+        iconFont = "academicons";
+        icon = "&#xe9d4;";
+      }
+      {
+        label = "GitHub";
+        url = "https://github.com/lschuermann";
+        iconFont = "fontawesome4";
+        icon = "&#xf09b;";
+      }
+      {
+        label = "ORCID";
+        url = "https://orcid.org/0000-0002-1429-7808";
+        iconFont = "academicons";
+        icon = "&#xe9d9;";
+      }
+      {
+        label = "LinkedIn";
+        url = "https://www.linkedin.com/in/lschuermann";
+        iconFont = "fontawesome4";
+        icon = "&#xf08c;";
+      }
+    ];
 
-      # index.html will be made available as "/"
-      pageUrl = "/";
-      filePath = "/index.html";
+    contributions = [
+      {
+        name = "LiteEth & LiteX";
+        url = "https://github.com/enjoy-digital/liteeth";
+        category = "FPGA networking";
+        description = ''
+          I implemented a 64-bit XGMII PHY for 10 Gb Ethernet, hardware packet
+          timestamping, and GMII/XGMII simulation. I also ported the full XGMII
+          adapter to Verilog.
+        '';
+        links = [
+          {
+            label = "Add a 64-bit XGMII PHY";
+            url = "https://github.com/enjoy-digital/liteeth/pull/76";
+            externalArrow = true;
+          }
+          {
+            label = "Support wider SRAM & bus conversion";
+            url = "https://github.com/enjoy-digital/liteeth/pull/75";
+            externalArrow = true;
+          }
+          {
+            label = "Add RX/TX timestamps & TX FIFO";
+            url = "https://github.com/enjoy-digital/liteeth/pull/59";
+            externalArrow = true;
+          }
+          {
+            label = "Add GMII & rewrite XGMII simulation";
+            url = "https://github.com/enjoy-digital/litex/pull/1023";
+            externalArrow = true;
+          }
+          {
+            label = "Add XGMII gap & deficit idle count";
+            url = "https://github.com/enjoy-digital/liteeth/pull/95";
+            externalArrow = true;
+          }
+          {
+            label = "Port of the XGMII adapter to Verilog";
+            url = (
+              "https://github.com/swabianinstruments/"
+              + "TimeTagger-FPGALink-Reference/blob/main/hdl/"
+              + "xgmii_axis_bridge.sv"
+            );
+            externalArrow = false;
+          }
+        ];
+      }
+      {
+        name = "NixOS";
+        url = "https://github.com/NixOS/nixpkgs";
+        category = "System configuration";
+        description = ''
+          I introduced declarative sudo rules and TPM2 integration.
+        '';
+        links = [
+          {
+            label = "Add declarative sudo rules";
+            url = "https://github.com/NixOS/nixpkgs/pull/33905";
+            externalArrow = true;
+          }
+          {
+            label = "Add TPM2 permissions & service";
+            url = "https://github.com/NixOS/nixpkgs/pull/72029";
+            externalArrow = true;
+          }
+          {
+            label = "Package the TPM2 resource manager";
+            url = "https://github.com/NixOS/nixpkgs/pull/72018";
+            externalArrow = true;
+          }
+          {
+            label = "Package TPM2 PKCS#11 tools";
+            url = "https://github.com/NixOS/nixpkgs/pull/72374";
+            externalArrow = true;
+          }
+        ];
+      }
+      {
+        name = "Verus";
+        url = "https://github.com/verus-lang/verus";
+        category = "Rust verification";
+        description = ''
+          I improved Verus’s support for Rust smart pointers and generic
+          specification methods, fixed a coercion bug that disrupted proofs, and
+          enabled running it without rustup.
+        '';
+        links = [
+          {
+            label = "Support Rc/Arc unsizing coercions";
+            url = "https://github.com/verus-lang/verus/pull/2719";
+            externalArrow = true;
+          }
+          {
+            label = "Fix generic spec-method type params";
+            url = "https://github.com/verus-lang/verus/pull/2611";
+            externalArrow = true;
+          }
+          {
+            label = "Fix no-op trait-object coercions";
+            url = "https://github.com/verus-lang/verus/pull/2630";
+            externalArrow = true;
+          }
+          {
+            label = "Allow execution without rustup";
+            url = "https://github.com/verus-lang/verus/pull/2563";
+            externalArrow = true;
+          }
+        ];
+      }
+      {
+        name = "Microsoft LiteBox";
+        url = "https://github.com/microsoft/litebox";
+        category = "Rust soundness & concurrency";
+        description = ''
+          I fixed an aliasing violation during thread-local storage teardown and
+          a thread-exit race that could write into a replacement process’s
+          memory.
+        '';
+        links = [
+          {
+            label = "Fix TLS teardown aliasing";
+            url = "https://github.com/microsoft/litebox/pull/1010";
+            externalArrow = true;
+          }
+          {
+            label = "Fix the thread-exit TID write race";
+            url = "https://github.com/microsoft/litebox/pull/1155";
+            externalArrow = true;
+          }
+        ];
+      }
+      {
+        name = "VexRiscv";
+        url = "https://github.com/SpinalHDL/VexRiscv";
+        category = "Hardware memory protection";
+        description = ''
+          I fixed an overflow in RISC-V memory-protection region calculations,
+          uncovered through Tock’s simulation tests.
+        '';
+        links = [
+          {
+            label = "Fix NAPOT region-bounds overflow";
+            url = "https://github.com/SpinalHDL/VexRiscv/pull/374";
+            externalArrow = true;
+          }
+        ];
+      }
+      {
+        name = "Cargo";
+        url = "https://github.com/rust-lang/cargo";
+        category = "Rust tooling";
+        description = ''
+          I fixed enabling experimental configuration-file includes from Cargo’s
+          configuration itself.
+        '';
+        links = [
+          {
+            label = "Enable config-include from config";
+            url = "https://github.com/rust-lang/cargo/pull/14196";
+            externalArrow = true;
+          }
+        ];
+      }
+    ];
+  };
 
-      pageCss = css;
+  # Shared renderers for the repeated homepage components.
+  components =
+    let
+      lib = site_args.lib;
+      data = homepageData;
+      escape = lib.escapeXML;
 
-      inherit footerContent;
-      content = util.template content {
-        publications = pages.publications.export;
-      };
-    }
-  )
+      renderLink = link: ''
+        <li>
+          <a href="${escape link.url}">
+            ${escape link.label}${lib.optionalString link.externalArrow ''
+              <span aria-hidden="true">↗</span>
+            ''}
+          </a>
+        </li>
+      '';
+
+      renderContribution =
+        project:
+        let
+          visibleLinks = lib.take 2 project.links;
+          moreLinks = lib.drop 2 project.links;
+        in
+        ''
+          <div class="contribution-row">
+            <dt>
+              <a href="${escape project.url}">${escape project.name}</a>
+              <span class="contribution-category">
+                ${escape project.category}
+              </span>
+            </dt>
+
+            <dd class="contribution-description">
+              <p>${escape project.description}</p>
+            </dd>
+
+            <dd class="contribution-references">
+              <ul class="contribution-links"
+                aria-label="Selected contributions">
+                ${lib.concatMapStringsSep "\n" renderLink visibleLinks}
+              </ul>
+
+              ${lib.optionalString (moreLinks != [ ]) ''
+                <details class="contribution-more">
+                  <summary>
+                    <span class="more-label">
+                      Show ${toString (builtins.length moreLinks)} more
+                    </span>
+                    <span class="less-label">Show fewer</span>
+                  </summary>
+                  <ul class="contribution-links">
+                    ${lib.concatMapStringsSep "\n" renderLink moreLinks}
+                  </ul>
+                </details>
+              ''}
+            </dd>
+          </div>
+        '';
+    in
+    {
+      profileLinks = lib.concatMapStringsSep "\n" (profile: ''
+        <a href="${escape profile.url}">
+          <span class="icon-${escape profile.iconFont}" aria-hidden="true">
+            ${profile.icon}
+          </span>
+          ${escape profile.label}
+        </a>
+      '') data.profiles;
+
+      contributions = ''
+        <dl class="contribution-list">
+          ${lib.concatMapStringsSep "\n" renderContribution data.contributions}
+        </dl>
+      '';
+    };
+
+  # Build the index from the homepage section headings in document order.
+  # Headings use an id followed by class="main-secheader" and plain text.
+  sectionHeadings = builtins.filter builtins.isList (
+    builtins.split (
+      ''<h2 id="([^"]+)" '' + ''class="main-secheader">([^<]+)</h2>''
+    ) content
+  );
+  pageIndex = site_args.lib.concatMapStringsSep "\n" (
+    heading:
+    let
+      id = site_args.lib.escapeXML (builtins.elemAt heading 0);
+      title = builtins.elemAt heading 1;
+    in
+    ''<li><a href="#${id}">${title}</a></li>''
+  ) sectionHeadings;
+in
+util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
+  site_args
+  // {
+    # For main pages, just provide a simple lower-case name of the page as the
+    # site ID
+    pageId = "index";
+
+    # index.html will be made available as "/"
+    pageUrl = "/";
+    filePath = "/index.html";
+
+    pageCss = css;
+
+    inherit footerContent;
+    content = util.template content {
+      inherit pageIndex;
+      inherit (components) profileLinks contributions;
+      publications = pages.publications.export;
+      writing = pages.blog.export.writingList (
+        site_args.lib.take 5 pages.blog.export.writing
+      );
+    };
+  }
+)
 
 ---content
-<h1 id="greeting">Hi, I'm Leon!</h1>
-<p id="greeting-cntd">I'm a PhD candidate in Computer Science at Princeton
-University, advised by <a href="https://www.amitlevy.com/">Prof. Amit Levy</a>
-in the <a href="https://sns.cs.princeton.edu/">SNS Research Group</a>.</p> I
-also closely collaborate with <a href="https://www.languagesforsyste.ms/">Prof.
-Mae Milano</a>. My research focus lies on the intersection of secure and
-resource-constrained operating systems and programming languages.
+<div class="home-intro">
+  <img class="headshot" src="/assets/img/leon.jpg"
+    alt="Portrait of Leon Schuermann" width="750" height="750">
 
-<p>
+  <div class="intro-text">
+    <h1 id="greeting">Hi, I'm Leon!</h1>
 
-<section>
-  <h2 id="projects" class="main-secheader">Here are some things I've worked on:</h2>
+    <p class="affiliation">
+      PhD candidate in Computer Science at Princeton University
+    </p>
+
+    <p>
+      I study how we can use operating systems and programming languages to make
+      software safer, more secure, and more reliable.
+    </p>
+
+    <p>
+      My work includes projects to facilitate safe interactions between Rust,
+      foreign languages, and concurrent hardware. I am a core maintainer of the
+      Tock operating system, which is used as a root of trust on tens of
+      millions of devices.
+    </p>
+
+    <p>
+      I am advised by <a href="https://www.amitlevy.com/">Amit Levy</a> in the
+      <a href="https://sns.cs.princeton.edu/">SNS Research Group</a> and
+      collaborate closely with <a href="https://www.languagesforsyste.ms/">Mae
+      Milano</a>.
+    </p>
+
+    <nav class="profile-links" aria-label="Contact and profiles">
+      ${ctx.profileLinks}
+    </nav>
+  </div>
+</div>
+
+<nav class="page-index" aria-labelledby="page-index-label">
+  <span id="page-index-label" class="page-index-label">On this page:</span>
 
   <ul>
-    <li>
-      <p class="project-desc">
-        In my current project, Omniglot, I explore how to enable safe
-        interactions between Rust and foreign programming languages. We have
-        developed a research prototype that is able to safely integrate
-	untrusted libraries into a Rust application, by combining memory
-	isolation with a set of static and runtime checks. The Omniglot research
-	paper is to set to appear in <a href="${
+    ${ctx.pageIndex}
+  </ul>
+</nav>
+
+<section aria-labelledby="projects">
+  <h2 id="projects" class="main-secheader">Project highlights</h2>
+
+  <div class="project-grid">
+    <article class="project-card">
+      <h3>Omniglot</h3>
+
+      <p>
+        Using foreign libraries shouldn’t mean giving up Rust’s safety
+        guarantees. Omniglot combines memory isolation, type validation, and
+        static checks to preserve those guarantees—even with unmodified,
+        untrusted libraries, and without copying shared data. We demonstrate it
+        in Linux applications and the Tock kernel.
+      </p>
+
+      <p class="project-outcome">
+        OSDI ’25 · Best Paper Award
+      </p>
+
+      <div class="project-links">
+        <a href="${
           ctx.publications.publicationLink "osdi25-omniglot"
-        }">OSDI'25</a>. In the meantime, you can read <a
-          href="https://www.usenix.org/publications/loginonline/memory-safety-merely-table-stakes"
-	>the USENIX ;login: article about it</a>.
-      </p>
-    </li>
-
-    <li>
-      <div class="project-img-container">
-        <a class="project-img-link" href="https://tockos.org">
-          <img class="project-img" src="/assets/img/tock.svg" alt="Tock OS logo">
+        }">
+          Read the OSDI'25 paper →
         </a>
-        <a class="project-img-fn fake-noteref"></a>
-      </div>
-      <p class="project-desc">
-        I am a core-team member of and contributor to
-        the <a href="https://tockos.org">Tock operating system</a>. It features
-        quite a few interesting concepts and targets microcontrollers with
-        upwards of 64kB RAM. It works on ARM Cortex-M and RISC-V platforms. You
-        should go check it out!
-      </p>
-    </li>
-
-    <li>
-      <div class="project-img-container">
-        <a class="project-img-link" href="https://github.com/enjoy-digital/litex">
-          <img class="project-img" src="/assets/img/litex.png" alt="LiteX logo">
+        <a href="${
+          "https://www.usenix.org/publications/loginonline/"
+          + "memory-safety-merely-table-stakes"
+        }">
+          Read the ;login: introduction →
         </a>
-        <a href="#fn-litexlogo" id="fnref-litexlogo" role="doc-noteref" class="project-img-fn"></a>
       </div>
-      <p class="project-desc">
-        To develop FPGA designs I'm using
-        <a href="https://github.com/enjoy-digital/litex">LiteX</a>, a free and
-        open system-on-chip framework. Previously, I contributed a 10 Gigabit
-	Ethernet datapath in the
-        <a href="https://github.com/enjoy-digital/liteeth">LiteEth IP core</a>
-        and added support for XGMII-interfaced PHYs, which I have since
-	<a
-	  href="https://github.com/swabianinstruments/TimeTagger-FPGALink-Reference/blob/main/hdl/xgmii_axis_bridge_rx_64b.sv"
-	>ported to Verilog</a>.
-      </p>
-    </li>
+    </article>
 
-    <li>
-      <div class="project-img-container">
-        <a class="project-img-link" href="https://nixos.org">
-          <img class="project-img" src="/assets/img/nixos.svg" alt="NixOS logo">
+    <article class="project-card">
+      <h3 class="project-title">
+        Tock
+        <img class="project-logo" src="/assets/img/tock-clock.svg" alt=""
+          width="32" height="32">
+      </h3>
+
+      <p>
+        I am a core maintainer of Tock, a secure operating system for embedded
+        devices. My contributions span the kernel’s application-memory
+        interfaces, RISC-V memory protection, and sound abstractions for
+        DMA—helping preserve Rust’s safety guarantees across interactions with
+        untrusted applications and hardware.
+      </p>
+
+      <p class="project-outcome">
+        SOSP ’25 · From research to deployed systems
+      </p>
+
+      <div class="project-links">
+        <a href="https://tockos.org">Explore Tock →</a>
+        <a href="${
+          ctx.publications.publicationLink "sosp25-tock-decade"
+        }">
+          Read our SOSP'25 retrospective →
         </a>
-        <a href="#fn-nixoslogo" id="fnref-nixoslogo" role="doc-noteref" class="project-img-fn"></a>
       </div>
-      <p class="project-desc">
-        Occasionally, I find myself hacking on my Linux distribution and package
-        manager of choice, NixOS / Nix. I built
-        its <code>security.sudo.extraRules</code> module, among other
-        infrastructure.
-      </p>
-    </li>
-  </ul>
+    </article>
 
-  <p>
-    Whenever there's time, I like to tinker with electronics, networking
-    hardware and servers. I'm especially interested in applications of the
-    Rust programming language, for example in embedded systems. My main area
-    of interest is developing secure, interconnected embedded systems.
+    <article class="project-card">
+      <h3>Treadmill Distributed Hardware Testbed</h3>
+
+      <p>
+        Embedded software is difficult to test automatically, especially across
+        chips and boards developers don’t have locally. I’m building Treadmill
+        to make automated testing on real hardware accessible, with remote
+        access for interactive development and debugging.
+      </p>
+
+      <div class="project-links">
+        <span>Website coming soon</span>
+        <a href="https://github.com/treadmill-tb/treadmill/">
+          View the source →
+        </a>
+      </div>
+    </article>
+
+    <aside class="project-card project-card-more" aria-labelledby="more-work">
+      <h3 id="more-work">More projects &amp; papers</h3>
+
+      <p>
+        These are a few highlights. My publications include more projects and
+        collaborations on secure systems, programming languages, and embedded
+        hardware.
+      </p>
+
+      <a class="project-link" href="/publications.html">
+        Browse all publications →
+      </a>
+    </aside>
+  </div>
+</section>
+
+<section aria-labelledby="writing">
+  <h2 id="writing" class="main-secheader">Writing</h2>
+
+  <div class="writing-carousel" role="region"
+    aria-label="Recent writing, scroll horizontally for more" tabindex="0">
+    ${ctx.writing}
+  </div>
+
+  <p class="section-more">
+    <a href="/blog.html">All blog posts →</a>
   </p>
 </section>
 
-<section>
-  <h2 id="news" class="main-secheader">News:</h2>
+<section aria-labelledby="contributions">
+  <h2 id="contributions" class="main-secheader">Open-source contributions</h2>
+  ${ctx.contributions}
+</section>
 
-  <ul>
+<section aria-labelledby="teaching">
+  <h2 id="teaching" class="main-secheader">Teaching</h2>
+
+  <p>
+    At Princeton, I’ve served as a teaching assistant for COS316 (Fall ’23),
+    COS518 (Spring ’24), and COS417 (Spring ’26), leading recitations, holding
+    office hours, and advising undergraduate and graduate course projects. I’ve
+    also had the opportunity to give guest lectures on:
+  </p>
+
+  <ul class="teaching-list">
     <li>
-      <p>
-        June 2025: We've published <a
-	  href="https://www.usenix.org/publications/loginonline/memory-safety-merely-table-stakes"
-	>a USENIX ;login: article on Omniglot</a> ahead of OSDI'25! It
-	introduces one of Omniglot's motivating examples and one of its
-	core mechanisms.
-      </p>
-
-      <p>
-        June 2025: I am presenting <a href="${
-	  ctx.publications.publicationLink "osdi25-omniglot"
-	}">
-	  <b><i>Omniglot</i></b>
-	</a> at the <a href="https://www.usenix.org/conference/osdi25">${
-	  ctx.publications.data.venues.OSDI25.name
-	}</a> in Boston, MA.
-	In our paper, we explore how Rust can safely interact with untrusted
-	foreign libraries. I will also be presenting a poster on this work.
-      </p>
+      Introduction to Git
+      <span class="teaching-course">(COS316: Principles of Computer System
+      Design, Fall 2023)</span>
+    </li>
+    <li>
+      Kernel threads
+      <span class="teaching-course">(COS417: Operating Systems, Spring
+      2026)</span>
     </li>
   </ul>
 </section>
+
+<section aria-labelledby="outside">
+  <h2 id="outside" class="main-secheader">Outside my research</h2>
+
+  <p>
+    I like tinkering with electronics, networking hardware, and servers. I
+    volunteer at <a href="https://selfnet.de">Selfnet e.V.</a>, a student-run
+    internet service provider, where I administer a few services and servers.
+  </p>
+
+  <p>
+    Away from computers, I enjoy hiking and biking, and dabble in playing the
+    bass guitar. A favorite hike was up Mt. Hallasan on Jeju Island.
+  </p>
+
+  <p>
+    I’m always happy to chat or collaborate on secure computer systems,
+    networking, system administration, and embedded systems. Reach me at <a
+      href="mailto:leon@is.currently.online">leon@is.currently.online</a>.
+  </p>
+</section>
+
 ---footerContent
-<aside role="doc-footnote">
-  Footnotes:
+<p>
+  For encrypted email, you can use
+  <a
+    href="/files/2022-07-03_59D593461D9FF82BC1D2A579C7FF8B0BACB5F9DB.asc">
+    my PGP key</a>.
+</p>
 
-  <ol>
-    <li id="fn-litexlogo">
-      LiteX logo used under the
-      LiteX <a href="https://github.com/enjoy-digital/litex/blob/master/LICENSE">
-        two-clause BSD license</a>.<a role="doc-backlink"
-				      href="#fnref-litexlogo">↩</a>
-    </li>
-    <li id="fn-nixoslogo">
-      NixOS logo by Tim Cuthbertson used under
-      the <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC
-        BY-SA 4.0 license</a>.<a role="doc-backlink"
-				 href="#fnref-nixoslogo">↩</a>
-    </li>
-  </ol>
-
-  <p>
-    Feel free to send me a PGP encrypted email using
-    <a href="/files/2022-07-03_59D593461D9FF82BC1D2A579C7FF8B0BACB5F9DB.asc"
-       >my key</a>.
-  </p>
-</aside>
 ---css
-/* Styling infrastructure for the project list. This is reasonably complex
-   as it renders text and an image in a list, and the image can have a
-   hyperlink and a footnote attached to it. */
-div.project-img-container {
-  margin: 0 0 0.5em 0.7em;
-  float: right;
+@font-face {
+  font-family: "Kalam";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/font/kalam-regular.ttf") format("truetype");
 }
 
-a.project-img-link {
+.home-intro {
+  display: grid;
+  grid-template-columns: 185px minmax(0, 1fr);
+  gap: 1.8rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
+.intro-text {
+  min-width: 0;
+}
+
+.headshot {
+  width: 170px;
+  height: auto;
+  margin: .3rem 0 1rem .3rem;
+  padding: 7px 7px 14px;
+  background: #fff;
+  border: 1px solid #b4b4aa;
+  box-shadow: 2px 4px 6px #00000026;
+  transform: rotate(-2deg);
+}
+
+h1#greeting {
+  display: block;
+  font-family: "Kalam", "Segoe Print", cursive;
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: normal;
+  margin: 0 0 .25em;
+}
+
+.affiliation {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.2rem;
+  padding-top: .3rem;
+}
+
+.profile-links a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .35rem;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+.page-index {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .35rem 1rem;
+  margin: 1.4rem 0 0;
+  padding: .65rem 0;
+  border-top: 1px solid #d7dbd1;
+  font-size: .8rem;
+}
+
+.page-index-label {
+  color: var(--ink);
+  font-size: .75rem;
+}
+
+.page-index ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .9rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-index li {
+  margin: 0;
+}
+
+.page-index li + li::before {
+  content: "·";
+  color: var(--muted);
+  margin-right: .9rem;
+}
+
+.page-index a {
+  display: inline-block;
+  padding: .15rem 0;
+  color: var(--green);
   text-decoration: none;
 }
 
-a.project-img-fn {
-  padding-left: 0;
-  vertical-align: top;
+.page-index a:hover {
+  color: var(--green);
+  text-decoration: underline;
 }
 
-img.project-img {
-  width: 140px;
+h2.main-secheader {
+  font-family: inherit;
+  font-size: 1.5rem;
+  margin: 2rem 0 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--rule);
 }
 
-@media only screen and (max-width: 600px) {
-  img.project-img {
-    width: 100px;
+h2.main-secheader::before {
+  content: none;
+}
+
+.page-index + section > h2.main-secheader {
+  margin-top: 0;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+.project-card h3 {
+  margin: 0 0 .75rem;
+  font-weight: bold;
+  min-height: 32px;
+}
+
+.project-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.project-logo {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.project-card-more {
+  border-style: dashed;
+}
+
+.project-card-more .project-link {
+  margin-top: auto;
+}
+
+.project-card p {
+  font-size: .95rem;
+}
+
+.project-card .project-outcome {
+  color: var(--muted);
+  font-size: .8rem;
+  margin-top: auto;
+  padding-top: .5rem;
+}
+
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem 1rem;
+}
+
+.project-link, .project-links {
+  font-size: .9rem;
+}
+
+.section-more {
+  margin: 1rem 0 0;
+  font-size: .9rem;
+}
+
+.writing-carousel {
+  overflow-x: scroll;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 2px;
+  padding: 2px 2px .8rem;
+  scrollbar-width: auto;
+  scrollbar-color: var(--rule) #e7e9df;
+}
+
+.writing-carousel::-webkit-scrollbar {
+  height: 10px;
+}
+
+.writing-carousel::-webkit-scrollbar-track {
+  background: #e7e9df;
+  border-radius: 5px;
+}
+
+.writing-carousel::-webkit-scrollbar-thumb {
+  background: var(--rule);
+  border: 2px solid #e7e9df;
+  border-radius: 5px;
+}
+
+.writing-carousel::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+.writing-carousel:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 4px;
+}
+
+.writing-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(260px, 38%, 340px);
+  gap: .8rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.writing-list li {
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  padding: 1rem;
+  background: #f1f2eb;
+  border-radius: 4px;
+  font-size: .85rem;
+}
+
+.writing-list h3 {
+  font-size: 1rem;
+  font-weight: normal;
+  line-height: 1.4;
+  text-wrap: auto;
+  margin: 0 0 .5rem;
+}
+
+.writing-meta {
+  order: -1;
+  color: var(--muted);
+  font-size: .75rem;
+  margin-bottom: .5rem;
+}
+
+.writing-list p:last-child {
+  margin-bottom: 0;
+}
+
+.teaching-list {
+  padding-left: 1.2rem;
+  margin: .8rem 0 1rem;
+  font-size: .9rem;
+}
+
+.teaching-list li {
+  margin: 0 0 .35rem;
+}
+
+.teaching-course {
+  color: var(--muted);
+}
+
+.contribution-list {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.contribution-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 240px;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #d7dbd1;
+}
+
+.contribution-row:first-child {
+  padding-top: .25rem;
+}
+
+.contribution-row:last-child {
+  border-bottom: 0;
+}
+
+.contribution-list dt {
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.contribution-list dt > a {
+  color: var(--ink);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.contribution-list dt > a:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+
+.contribution-category {
+  display: block;
+  color: var(--muted);
+  font-size: .72rem;
+  margin-top: .35rem;
+}
+
+.contribution-list dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.contribution-list dd p {
+  margin: 0;
+}
+
+.contribution-references {
+  border-left: 1px solid #d7dbd1;
+  padding-left: 1rem;
+}
+
+.contribution-links {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: .7rem;
+  line-height: 1.5;
+}
+
+.contribution-links a {
+  text-decoration: none;
+}
+
+.contribution-links a:hover {
+  text-decoration: underline;
+}
+
+.contribution-links a span {
+  color: var(--muted);
+  font-size: .75em;
+}
+
+.contribution-more {
+  margin-top: .45rem;
+  font-size: .75rem;
+}
+
+.contribution-more summary {
+  color: var(--muted);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.contribution-more summary:hover {
+  color: var(--green);
+}
+
+.contribution-more .contribution-links {
+  margin-top: .45rem;
+}
+
+.contribution-more .less-label {
+  display: none;
+}
+
+.contribution-more[open] .more-label {
+  display: none;
+}
+
+.contribution-more[open] .less-label {
+  display: inline;
+}
+
+@media (max-width: 700px) {
+  .home-intro {
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .headshot {
+    width: 120px;
+    padding: 5px 5px 10px;
+  }
+
+  .project-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .writing-list {
+    grid-auto-columns: 85%;
+  }
+
+  .contribution-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .6rem;
+  }
+
+  .contribution-category {
+    display: inline;
+    margin-left: .75rem;
+  }
+
+  .contribution-references {
+    border-left: 0;
+    padding-left: 0;
   }
 }
 
----trailer
+@media (max-width: 420px) {
+  .contribution-category {
+    display: block;
+    margin-left: 0;
+  }
 
-#  LocalWords:  microcontrollers tockos FPGA datapath
+  .home-intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .5rem;
+  }
+
+  .headshot {
+    margin: 0 0 1.2rem .3rem;
+  }
+}
+
+@media print {
+  .writing-carousel {
+    overflow: visible;
+  }
+
+  .writing-list {
+    display: block;
+  }
+
+  .writing-list li {
+    break-inside: avoid;
+    margin-bottom: .8rem;
+  }
+
+  .headshot {
+    transform: none;
+    box-shadow: none;
+  }
+}

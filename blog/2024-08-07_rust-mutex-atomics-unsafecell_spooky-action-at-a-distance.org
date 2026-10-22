@@ -23,6 +23,7 @@
     unpublished = false;
     tags = [ "rust" ];
     abstractTag = "abstract";
+    description = "How Rust’s aliasing rules interact with mutexes, atomics, and interior mutability.";
   }
 #+END_SRC
 

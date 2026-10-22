@@ -229,10 +229,11 @@ in
       # For main pages, just provide a simple lower-case name of the page as the
       # site ID
       pageId = "publications";
+      pageTitle = "Publications";
       pageUrl = "/publications.html";
 
-      # content = "Something something I'm a well published researcher";
       content = ''
+        <h1 class="first-heading">Publications</h1>
         <p>Switch to a <a href="${pages.publications_chronological.meta.url}">chronological view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
         <h2>Selected Publications</h2>
@@ -277,8 +278,8 @@ in
       pageNavidMatches = [ "publications" ];
       canonicalPageId = "publications";
 
-      # content = "Something something I'm a well published researcher";
       content = ''
+        <h1 class="first-heading">Publications</h1>
         <p>Switch to a <a href="${pages.publications.meta.url}">categorical view</a>, or view the <a href="${pages.publications_yaml_html.meta.url}">data source</a>.</p>
 
         ${pubList data.own_publications (_: _: true) true true}

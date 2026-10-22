@@ -88,6 +88,17 @@ let
 
   applied_pages = lib.fix rec_page_eval;
 
+  # Fetch only the two files we serve, rather than the full Google Fonts archive.
+  kalamBaseUrl = "https://raw.githubusercontent.com/google/fonts/5174b3333331c966c38f4355d50b03ca1c1df2f9/ofl/kalam";
+  kalam = pkgs.fetchurl {
+    url = "${kalamBaseUrl}/Kalam-Regular.ttf";
+    hash = "sha256-V87LY9RggBk3GVQnSuHYw5d2TevVsZ1KM8HvpNySPAs=";
+  };
+  kalamLicense = pkgs.fetchurl {
+    url = "${kalamBaseUrl}/OFL.txt";
+    hash = "sha256-9i7zV9Ohw9J+3TWm4bo1DoqNE0mXl5ZO6t778LOxXR8=";
+  };
+
   static_dir = ./static;
 
   output = symlinkJoin {
@@ -103,6 +114,10 @@ let
           # Primary Fira font face
           ln -s ${pkgs.fira}/share/fonts/opentype/FiraSans-Regular.otf ./assets/font/firasans-regular.otf
           ln -s ${pkgs.fira}/share/fonts/opentype/FiraSans-Bold.otf ./assets/font/firasans-bold.otf
+
+          # Greeting font and its redistribution license, fetched with pinned hashes.
+          ln -s ${kalam} ./assets/font/kalam-regular.ttf
+          ln -s ${kalamLicense} ./assets/font/kalam-LICENSE.txt
 
           # Fallback DejaVu font face
           ln -s ${pkgs.dejavu_fonts}/share/fonts/truetype/DejaVuSans.ttf ./assets/font/dejavusans-regular.ttf

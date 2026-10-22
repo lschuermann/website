@@ -94,8 +94,6 @@ let
     else
       str;
 
-  # TODO: delete trailing whitespace in rendered file
-
   # Main site title for the HTML title tag, either as a suffix for the
   # page title or standalone
   siteTitle = "Leon Schuermann";
@@ -155,7 +153,7 @@ in
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Make sure that this website displays correctly accross
+    <!-- Make sure that this website displays correctly across
     browsers and devices -->
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -184,152 +182,48 @@ in
       @font-face {
         font-family: "FiraSans";
         font-weight: normal;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/firasans-regular.otf");
       }
+
       @font-face {
         font-family: "FiraSans";
         font-weight: bold;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/firasans-bold.otf");
       }
 
       @font-face {
         font-family: "DejaVuSans";
         font-weight: normal;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/dejavusans-regular.ttf");
       }
+
       @font-face {
         font-family: "DejaVuSans";
         font-weight: bold;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/dejavusans-bold.ttf");
       }
 
       @font-face {
         font-family: "FontAwesome4";
         font-weight: normal;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/fontawesome4.otf");
       }
+
       @font-face {
         font-family: "Academicons";
         font-weight: normal;
+        font-display: swap;
         src: url("${ctx.assetsPath}font/academicons.ttf");
       }
 
-      /* Generic page settings. */
-      a {
-        color: #000;
-      }
-
-      h1 {
-        border-top: 1px solid;
-        margin-top: 1em;
-        padding-top: 0.5em;
-      }
-
-      h1.first-heading {
-        border-top: 0px;
-      }
-
-      body {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0;
-
-        font-family: "FiraSans", "DejaVuSans", Arial, sans;
-        font-size: 1.1rem;
-        color: #000;
-
-        /* Reset the counter for the footnotes once per page, within the
-        body. This is required for the counter to work at all. */
-        counter-reset: footnotes;
-      }
-
-      header {
-        margin: 0px 1.2rem 2rem 1.2rem;
-        padding: 1.2rem 0px 0px 0px;
-
-        font-size: 1.2em;
-
-        /* The header consists of two elements. The CSS flexbox layout will make
-        sure that these items are placed with as much space as possible in
-        between (i.e. at the left and right side of the screen). However, they
-        will automatically wrap when the screen is too small. */
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      header #logo {
-        margin-bottom: 1.2rem;
-
-        font-size: 1.3em;
-        /* On large screens no impact, but centers when wrapping. */
-        text-align: center;
-      }
-
+      /* Links in the site header are plain except for the active page. */
       header a {
-        /* Avoid underscored links in the header. */
         text-decoration: none;
-      }
-
-      header nav {
-        margin-bottom: 1.2rem;
-
-        /* On large screens no impact, but centers when wrapping. */
-        text-align: center;
-      }
-
-      /* This is a dummy element rendered before the first navigation anchor
-      containing a hidden whitespace character which has the same font size as
-      the header #logo element. This makes sure that the nav flexbox container
-      has the same height and will thus be correctly aligned vertically. */
-      header nav a::before {
-        content: " ";
-        visibility: hidden;
-        font-size: 1.3em;
-      }
-
-      header nav a.nav-current {
-        text-decoration: underline;
-      }
-
-      /* Add a bit of space between navigation elements */
-      header nav a {
-        margin-right: 0.5em;
-      }
-
-      main {
-        margin: 0px 1.2rem 0px 1.2rem;
-      }
-
-      /* On the landing page, the primary heading is displayed inline with the
-      text but in a slightly larger font size. */
-      h1#greeting {
-        display: inline;
-        border-top: none;
-        font-size: 1.3em;
-        font-weight: normal;
-      }
-
-      /* After the greeting "heading", continue with an inline paragraph. */
-      p#greeting-cntd {
-        display: inline;
-      }
-
-      /* In the first part of the landing page, secondary headings are simply
-      displayed as paragraphs of text with an arrow in front of them */
-      h2.main-secheader {
-        margin-top: 1.7em;
-
-        font-size: 1em;
-        font-weight: normal;
-      }
-
-      h2.main-secheader::before {
-        /* Fira does not include this symbol */
-        font-family: "DejaVuSans", Arial, sans;
-        content: '↪ ';
-        font-size: 1.5em;
       }
 
       /* Support for inline icons in text. We want to limit the icon's height to
@@ -348,10 +242,8 @@ in
         font-family: "Academicons";
       }
 
-      /* Footnote support. This uses CSS counters to iterate the footnotes, but
-       * it cannot automatically correlate footnote numbers to the proper footnotes
-       * on the bottom of the page. Once a template engine is used, this should
-       * probably be done in the templating software itself. */
+      /* Reference markers are numbered in document order. Their hrefs and the
+         order of the corresponding footnotes are supplied by page content. */
       [role="doc-noteref"] {
         counter-increment: footnotes;
         padding-left: .25em;
@@ -371,7 +263,7 @@ in
       }
 
       /* Also supply a class style for links which aren't a real footnote. This
-      can be used to achieve consistent alignment. */
+         can be used to achieve consistent alignment. */
       .fake-noteref {
         padding-left: .25em;
         padding-right: 0.5em;
@@ -384,41 +276,10 @@ in
         font-size: 0.75em;
       }
 
-
       /* Footnote backlink symbol */
       a.doc-backlink {
         /* Fira does not include this symbol */
         font-family: "DejaVuSans", Arial, sans;
-      }
-
-      /* Footer with footnotes and copyright message. */
-      footer, div#footnotes {
-        margin-top: 2em;
-        padding-top: 0.5em;
-        margin-bottom: 2em;
-        width: 100%;
-
-        border-top: 1px solid;
-
-        font-size: 0.8em;
-      }
-
-      footer .footer-center {
-        width: 100%;
-        text-align: center;
-      }
-
-      footer .copyright-message {
-        margin-top: 1.5em;
-        display: inline-block;
-        max-width: 580px;
-      }
-
-      @media all and (min-width: 400px) {
-        footer .copyright-message {
-          padding-left: 3em;
-          padding-right: 3em;
-        }
       }
 
       footer .revision-info, footer .footer-nav {
@@ -426,16 +287,273 @@ in
         margin-top: 0.5em;
       }
 
+      /* Plain paper, dark ink, and visible rules. */
+      :root {
+        color-scheme: light;
+        --paper: #fffefa;
+        --ink: #191c19;
+        --muted: #4d534d;
+        --green: #125333;
+        --rule: #838b7f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-padding-top: 2rem;
+      }
+
+      body {
+        margin: 0 auto;
+        font-family: "FiraSans", "DejaVuSans", Arial, sans-serif;
+        counter-reset: footnotes;
+        max-width: 960px;
+        padding: 0 32px;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 1.05rem;
+        line-height: 1.55;
+      }
+
+      a {
+        color: var(--green);
+        text-decoration-thickness: 1px;
+        text-underline-offset: .2em;
+      }
+
+      a:hover {
+        color: #142e22;
+        text-decoration-thickness: 2px;
+      }
+
+      a:focus-visible, summary:focus-visible {
+        outline: 2px solid var(--green);
+        outline-offset: 5px;
+      }
+
+      ::selection {
+        background: #c7dfb9;
+      }
+
+      h1, h2, h3 {
+        line-height: 1.2;
+        font-weight: normal;
+        text-wrap: balance;
+      }
+
+      h1, h2 {
+        font-family: inherit;
+      }
+
+      h1 {
+        border: 0;
+        padding: 0;
+        font-size: 2rem;
+        letter-spacing: normal;
+        margin: .5em 0;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        letter-spacing: normal;
+        margin: 2em 0 .8em;
+      }
+
+      h3 {
+        font-size: 1.2rem;
+      }
+
+      p {
+        margin: 0 0 .9em;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0 0 1.8rem;
+        padding: 1.2rem 0 .9rem;
+        border-bottom: 2px solid var(--rule);
+        font-size: 1rem;
+        gap: 1rem;
+      }
+
+      header #logo {
+        margin: 0;
+        font-size: 1.25rem;
+        text-align: left;
+        font-weight: normal;
+      }
+
+      header #logo a {
+        color: var(--ink);
+      }
+
+      header nav {
+        margin: 0;
+        display: flex;
+        gap: 1.4rem;
+        text-align: left;
+      }
+
+      header nav a {
+        margin: 0;
+        padding: .35rem 0;
+        color: var(--muted);
+      }
+
+      header nav a.nav-current {
+        text-decoration: underline;
+        color: var(--green);
+        text-decoration-thickness: 2px;
+        text-underline-offset: .6em;
+      }
+
+      main {
+        margin: 0;
+        min-width: 0;
+      }
+
+      main > ul {
+        padding-left: 1.2em;
+      }
+
+      main > ul > li {
+        padding-left: .3em;
+        margin-bottom: 1.2rem;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid var(--rule);
+        margin: 1.8rem 0;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      pre {
+        max-width: 100%;
+        overflow-x: auto;
+        line-height: 1.55;
+      }
+
+      code {
+        font-size: .88em;
+        overflow-wrap: anywhere;
+      }
+
+      table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: .4em .7em;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      [id] {
+        scroll-margin-top: 1.5rem;
+      }
+
+      footer, div#footnotes {
+        width: 100%;
+        margin-bottom: 2em;
+        border-top: 1px solid;
+        font-size: .8em;
+        border-color: var(--rule);
+        color: var(--muted);
+        line-height: 1.6;
+        margin-top: 2.5rem;
+        padding-top: 1rem;
+      }
+
+      footer .footer-center {
+        width: 100%;
+        text-align: left;
+      }
+
+      footer .copyright-message {
+        max-width: 660px;
+        padding: 0;
+        margin-top: 1rem;
+        display: block;
+      }
+
+      .revision-info {
+        font-family: monospace;
+        font-size: .85em;
+      }
+
+      .skip-link {
+        position: absolute;
+        top: -100px;
+        background: var(--paper);
+        padding: .5em 1em;
+        z-index: 10;
+      }
+
+      .skip-link:focus {
+        top: 8px;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 0 22px;
+          font-size: 1rem;
+        }
+
+        header {
+          margin-bottom: 1.6rem;
+          padding-top: 1rem;
+          align-items: flex-start;
+        }
+
+        header nav {
+          gap: 1.2rem;
+          width: 100%;
+        }
+
+        footer {
+          margin-top: 2rem;
+        }
+      }
+
+      @media print {
+        body {
+          max-width: none;
+          background: white;
+          color: black;
+        }
+
+        header nav, .skip-link, .page-index {
+          display: none;
+        }
+
+        a {
+          color: inherit;
+        }
+      }
+
       ${ctx.lib.optionalString (ctx.pageCss != null) ctx.pageCss}
     </style>
   </head>
 
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header>
       <div id="logo">
         <a href="/">${ctx.headerTitle}</a>
       </div>
-      <nav>
+      <nav aria-label="Main navigation">
         ${
           ctx.indent 8 (
             ctx.lib.concatStringsSep "\n" (
@@ -445,7 +563,7 @@ in
                   }\"${
                     ctx.lib.optionalString (
                       ctx.pageNavidMatchesFn headerNavPage.id
-                    ) " class=\"nav-current\""
+                    ) " class=\"nav-current\" aria-current=\"page\""
                   }>${
                     headerNavPage.title
                   }</a>"
@@ -456,7 +574,7 @@ in
       </nav>
     </header>
 
-    <main>
+    <main id="main-content">
 ${ctx.content}
     </main>
 

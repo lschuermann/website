@@ -13,6 +13,7 @@
     unpublished = false;
     tags = [ "nix" "emacs" ];
     abstractTag = "abstract";
+    description = "Separating Emacs and its applications into systemd scopes to isolate memory pressure.";
   }
 #+END_SRC
 

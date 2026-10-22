@@ -13,6 +13,7 @@
     unpublished = false;
     tags = [ "elixir" ];
     abstractTag = "abstract";
+    description = "Keeping Phoenix streaming connections alive with heartbeats and per-request Cowboy timeouts.";
   }
 #+END_SRC
 

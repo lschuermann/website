@@ -127,7 +127,6 @@ let
           fi
         '';
 
-      # TODO: this selector is probably called something different.
       nullOr = cond: val: if cond then val else null;
 
       abstract = nullOr ((frontmatter.abstractTag or null) != null) (
@@ -169,13 +168,13 @@ let
 
         pageCss = ''
           main p {
-            text-align: justify;
+            text-align: left;
           }
 
           div.org-src-container, pre.example {
             overflow: auto;
-            border-radius: 10px;
-            background-color: beige;
+            border-radius: 3px;
+            background-color: #eeeee6;
             font-size: .8em;
           }
 
@@ -228,6 +227,7 @@ let
         export = {
           blogpost = {
             inherit (frontmatter) title date authors;
+            description = frontmatter.description or "";
             tags = frontmatter.tags or [ ];
             unpublished = frontmatter.unpublished or false;
             published = util.parseRFC3339Sec frontmatter.date;
@@ -263,6 +263,53 @@ let
         )
       )
   );
+
+  # External articles for the homepage Writing carousel.
+  externalWriting = [
+    {
+      title = "Memory Safety Is Merely Table Stakes";
+      date = "2025-06";
+      url = "https://www.usenix.org/publications/loginonline/" + "memory-safety-merely-table-stakes";
+      source = "USENIX ;login:";
+      description = ''
+        An introduction to Omniglot’s motivation and approach to safely using
+        untrusted foreign libraries from Rust.
+      '';
+    }
+  ];
+
+  # Export published writing for the homepage, newest first.
+  writing = lib.sort (a: b: a.date > b.date) (
+    externalWriting
+    ++ builtins.map (page: {
+      inherit (page.export.blogpost) title;
+      date = builtins.substring 0 10 page.export.blogpost.date;
+      url = page.meta.url;
+      source = "Blog";
+      description = page.export.blogpost.description;
+    }) (lib.filter (page: !page.export.blogpost.unpublished) blogPages)
+  );
+
+  writingList = entries: ''
+    <ul class="writing-list">
+      ${lib.concatMapStringsSep "\n" (entry: ''
+        <li>
+          <h3>
+            <a href="${lib.escapeXML entry.url}">
+              ${lib.escapeXML entry.title}
+            </a>
+          </h3>
+          <p class="writing-meta">
+            <time datetime="${entry.date}">${entry.date}</time>
+            · ${lib.escapeXML entry.source}
+          </p>
+          ${lib.optionalString (entry.description != "") ''
+            <p>${lib.escapeXML entry.description}</p>
+          ''}
+        </li>
+      '') entries}
+    </ul>
+  '';
 
   postListPages = pages: ''
     ${lib.concatStringsSep "\n" (
@@ -316,6 +363,11 @@ let
 
         inherit pageNavidMatches pageHeaderTitle;
 
+        # The homepage consumes this data.
+        export = lib.optionalAttrs (pageId == "blog") {
+          inherit writing writingList;
+        };
+
         content = ''
           ${header}
           ${postListMaybe postFilter}
@@ -336,7 +388,7 @@ let
           }
 
           article.post-preview p {
-            text-align: justify;
+            text-align: left;
           }
 
           @media only screen and (min-width: 600px) {
