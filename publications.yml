@@ -4,11 +4,11 @@ venues:
     type: conference
     abbrev: "ASPLOS '26"
     name: >-
-      The 30th ACM International Conference on Architectural Support
+      The 31st ACM International Conference on Architectural Support
       for Programming Languages and Operating Systems
     website: "https://www.asplos-conference.org/asplos2026/"
-    start: 2025-03-22T00:00:00-04:00
-    end: 2025-03-26T23:59:59-04:00
+    start: 2026-03-21T00:00:00-04:00
+    end: 2026-03-26T23:59:59-04:00
 
   ACSAC25:
     type: conference
@@ -345,7 +345,6 @@ own_publications:
   asplos26-abacus:
     type: paper
     date: '2026-03-22'
-    unpublished: true
 
     title: >-
       Rage Against the State Machine: Type-Stated Hardware Peripherals
@@ -359,6 +358,9 @@ own_publications:
       - ackerman_adin@ucsd
       - levy_amit@princeton
       - pannuto_pat@ucsd
+
+    doi: 10.1145/3779212.3790207
+    doi_repository: acmdl
 
     venue: ASPLOS26
 
@@ -376,6 +378,9 @@ own_publications:
       - schuermann_leon@princeton
       - chen_jingyuan@princeton
       - levy_amit@princeton
+
+    doi: 10.1109/ACSAC67867.2025.00088
+    doi_repository: ieee
 
     venue: ACSAC25
 
