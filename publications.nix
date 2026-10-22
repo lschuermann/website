@@ -672,7 +672,8 @@ in
 
     content = builtins.readFile (
       pkgs.runCommand "publications.yaml.html" { } ''
-        ${pkgs.chroma}/bin/chroma --html --html-lines --html-linkable-lines ${./publications.yml} >$out
+        ${pkgs.chroma}/bin/chroma --html --html-lines --html-linkable-lines ${./publications.yml} \
+          | sed '/<html>/a <meta charset="utf-8">' >$out
       ''
     );
 
