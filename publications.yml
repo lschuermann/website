@@ -335,6 +335,11 @@ authors:
     last: Toubes
     website: https://jacktoubes.com/
 
+# Selected publications, in display order (IDs from own_publications below):
+selected_publications:
+  - osdi25-omniglot
+  - sosp25-tock-decade
+
 # Publications that I'm a (co-)author on, in reverse-chronological order:
 own_publications:
   asplos26-abacus:
@@ -377,7 +382,6 @@ own_publications:
   sosp25-tock-decade:
     type: paper
     date: '2025-10-14'
-    selected: true
 
     title: >-
       Tock: From Research To Securing 10 Million Computers
@@ -398,7 +402,6 @@ own_publications:
   osdi25-omniglot:
     type: paper
     date: '2025-07-07'
-    selected: true
 
     title: >-
       Building Bridges: Safe Interactions with Foreign Languages
@@ -412,6 +415,7 @@ own_publications:
       - milano_mae@princeton
       - levy_amit@princeton
 
+    pdf: https://www.usenix.org/system/files/osdi25-schuermann.pdf
     webpage: https://www.usenix.org/conference/osdi25/presentation/schuermann
 
     venue: OSDI25
