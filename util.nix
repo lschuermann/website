@@ -58,14 +58,14 @@ let
     file_ish:
     let
       parsed = parse_nixfm file_ish;
-      nixDeriv = pkgs.writeText "import_nixfm_deriv.nix" parsed.nix;
+      nixDeriv = builtins.toFile "import_nixfm_deriv.nix" parsed.nix;
     in
     import nixDeriv parsed;
 
   template =
     tmpl: ctx:
     let
-      templateNixDeriv = pkgs.writeText "template_deriv.nix" ''
+      templateNixDeriv = builtins.toFile "template_deriv.nix" ''
         ctx:
         ''\'''\'
         ${tmpl}

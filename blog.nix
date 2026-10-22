@@ -29,17 +29,12 @@ let
   orgBlogEntry =
     basedir: filename:
     let
-      emacsPkg = pkgs.emacs.pkgs.withPackages (
+      emacsPkg = pkgs.emacs-nox.pkgs.withPackages (
         epkgs: with epkgs; [
           org
           use-package
-          el-get
-          color-theme-modern
-          request
-          buttercup
           htmlize
           org-contrib
-          ox-twbs
 
           # Syntax highlighting packages
           nix-mode
@@ -59,17 +54,16 @@ let
       orgFile = pkgs.writeText derivPrefix orgSource;
       basename = lib.removeSuffix ".org" filename;
 
-      frontmatterNix = pkgs.runCommand "${derivPrefix}-frontmatter.nix" { } ''
-        cp "${orgFile}" "./${filename}"
-        ${emacsPkg}/bin/emacs -Q --batch --eval "
-          (progn
-            (require 'ob-tangle)
-            (dolist (file command-line-args-left)
-              (with-current-buffer (find-file-noselect file)
-                (org-babel-tangle))))
-        " "./${filename}"
-        cp "./frontmatter.nix" "$out"
-      '';
+      # The frontmatter is a single Nix block; extracting it directly avoids
+      # starting Emacs (and building its closure) during metadata evaluation.
+      frontmatterParts = lib.splitString "#+BEGIN_SRC nix :tangle frontmatter.nix\n" orgSource;
+      frontmatterNix =
+        if builtins.length frontmatterParts != 2 then
+          throw "Expected one frontmatter block in ${filename}"
+        else
+          builtins.toFile "${derivPrefix}-frontmatter.nix" (
+            builtins.head (lib.splitString "#+END_SRC" (builtins.elemAt frontmatterParts 1))
+          );
 
       frontmatter = import "${frontmatterNix}" {
         inherit
