@@ -1,11 +1,12 @@
 {
+  pkgs,
   gitRev,
   baseUrl ? "https://leon.schuermann.io",
   doCheck ? true,
   renderBlogDrafts ? false,
 }:
 
-with import ./pinned-pkgs.nix { };
+with pkgs;
 with import ./util.nix pkgs;
 
 let

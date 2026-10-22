@@ -14,11 +14,25 @@ The main site derivation features a passthru object that can be used
 to gain access to the Nix page attrsets:
 
 ```
-$ nix repl --argstr gitRev "$(git rev-parse HEAD)" --file site.nix
-Lix 2.91.3
-Type :? for help.
-Loading installable ''...
-Added 43 variables.
-nix-repl> pages.publications.export.venues.SOSP25.name
+$ nix repl .
+nix-repl> packages.x86_64-linux.default.pages.publications.export.venues.SOSP25.name
 "The 31st ACM Symposium on Operating Systems Principles"
 ```
+
+## Building and developing
+
+```sh
+nix build                       # production site in ./result
+nix flake check                 # site validation, shell check, formatting
+nix fmt                         # treefmt-nix
+nix fmt -- --ci                 # check formatting without accepting changes
+nix run .#preview               # drafts and live preview at localhost:8080
+nix build .#preview             # preview output (no site validation)
+nix flake update                # update input pins
+```
+
+## Deployment
+
+Run `nix run .#deploy`. Requires a clean `public` branch, fetches `github`,
+verifies that `github/public` is an ancestor of HEAD, checks formatting, and
+builds the validated site in pure mode before pushing and uploading.

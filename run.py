@@ -1,5 +1,4 @@
-#! /usr/bin/env nix-shell
-#! nix-shell --pure -i python3 -p python3 git python3Packages.pyinotify nix cacert
+#!/usr/bin/env python3
 
 import os, sys, time
 import tempfile
@@ -14,6 +13,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 last_modified = time.time()
 
+
 # https://stackoverflow.com/a/70120267
 async def check_output(*args, **kwargs):
     p = await asyncio.create_subprocess_exec(
@@ -26,6 +26,7 @@ async def check_output(*args, **kwargs):
     if p.returncode == 0:
         return stdout_data
 
+
 def serve_dir(directory):
     last_modified = time.time()
 
@@ -36,7 +37,8 @@ def serve_dir(directory):
             self.last_modified = last_modified
 
             return SimpleHTTPRequestHandler.__init__(
-                self, *args, directory=directory, **kwargs)
+                self, *args, directory=directory, **kwargs
+            )
 
         def fake_fstat(self, fileno):
             class StatResultWrapper:
@@ -60,7 +62,7 @@ def serve_dir(directory):
 
         # @unittest.mock.patch('os.fstat', side_effect=fake_fstat)
         def send_head(self, *args, **kwargs):
-            with unittest.mock.patch('os.fstat', side_effect=self.fake_fstat):
+            with unittest.mock.patch("os.fstat", side_effect=self.fake_fstat):
                 return SimpleHTTPRequestHandler.send_head(self, *args, **kwargs)
 
         # Avoid propagating socket errors, such as when the client closes
@@ -71,8 +73,7 @@ def serve_dir(directory):
             except socket.error:
                 pass
 
-
-    httpd = HTTPServer(('localhost', 8080), RequestHandler)
+    httpd = HTTPServer(("localhost", 8080), RequestHandler)
 
     httpd.serve_forever()
 
@@ -83,27 +84,34 @@ async def serve():
     with tempfile.TemporaryDirectory() as tmpdir:
         resultdir = tmpdir + "/result"
         print("Build dir:", resultdir)
-        thread.start_new_thread(serve_dir, (resultdir, ))
+        thread.start_new_thread(serve_dir, (resultdir,))
 
         build_event = asyncio.Event()
         build_event.set()
 
         class EventProcessor(pyinotify.ProcessEvent):
-            _methods = ["IN_CREATE",
-                        "IN_CLOSE_WRITE",
-                        "IN_DELETE",
-                        "IN_DELETE_SELF",
-                        "IN_MODIFY",
-                        "IN_MOVE_SELF",
-                        "IN_MOVED_FROM",
-                        "IN_MOVED_TO",
-                        "IN_Q_OVERFLOW",
-                        "IN_UNMOUNT"]
+            _methods = [
+                "IN_CREATE",
+                "IN_CLOSE_WRITE",
+                "IN_DELETE",
+                "IN_DELETE_SELF",
+                "IN_MODIFY",
+                "IN_MOVE_SELF",
+                "IN_MOVED_FROM",
+                "IN_MOVED_TO",
+                "IN_Q_OVERFLOW",
+                "IN_UNMOUNT",
+            ]
 
         def process_generator(cls, method):
             def _method_name(self, event):
-                print("Change detected: {} ({}, {})".format(event.pathname, event.maskname, method))
+                print(
+                    "Change detected: {} ({}, {})".format(
+                        event.pathname, event.maskname, method
+                    )
+                )
                 build_event.set()
+
             _method_name.__name__ = "process_{}".format(method)
             setattr(cls, _method_name.__name__, _method_name)
 
@@ -114,9 +122,13 @@ async def serve():
             print("Event: ", param)
 
         watch_manager = pyinotify.WatchManager()
-        event_notifier = pyinotify.AsyncioNotifier(watch_manager, asyncio.get_event_loop(), default_proc_fun=EventProcessor())
+        event_notifier = pyinotify.AsyncioNotifier(
+            watch_manager, asyncio.get_event_loop(), default_proc_fun=EventProcessor()
+        )
 
-        watch_manager.add_watch(os.path.abspath("./"), pyinotify.ALL_EVENTS, rec=True, auto_add=True)
+        watch_manager.add_watch(
+            os.path.abspath("./"), pyinotify.ALL_EVENTS, rec=True, auto_add=True
+        )
         # event_notifier.loop()
 
         while True:
@@ -125,22 +137,28 @@ async def serve():
             build_event.clear()
 
             print("Rebuilding...")
-            git_rev = await check_output(*["git", "rev-parse", "--short", "HEAD"])
             build_proc = await asyncio.create_subprocess_exec(
-                *["nix-build", "-o", resultdir, "--argstr", "baseUrl", "http://localhost:8080", "--arg", "doCheck", "false", "--arg", "renderBlogDrafts", "true", "--argstr", "gitRev", git_rev, "site.nix"],
-                #stdout=sys.stdout,
-                #stderr=sys.stderr,
-                #shell=False,
+                *[
+                    "nix",
+                    "build",
+                    ".#preview",
+                    "--out-link",
+                    resultdir,
+                    "--no-write-lock-file",
+                ],
+                # stdout=sys.stdout,
+                # stderr=sys.stderr,
+                # shell=False,
             )
             await build_proc.wait()
             last_modified = time.time()
             print(f"Build finished, setting last_modified: {last_modified}!")
 
+
 def main():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(serve())
-    loop.close()
+    asyncio.run(serve())
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

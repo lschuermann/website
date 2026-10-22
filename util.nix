@@ -4,7 +4,7 @@ let
   import_yaml =
     file:
     builtins.fromJSON (
-      builtins.readFile "${pkgs.runCommandNoCC "converted.json" { } ''
+      builtins.readFile "${pkgs.runCommand "converted.json" { } ''
         ${pkgs.yj}/bin/yj < "${file}" > "$out"
       ''}"
     );
