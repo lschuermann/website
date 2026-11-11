@@ -1,4 +1,4 @@
----nix
+```{.nix #nix}
 {
   content,
   footerContent,
@@ -301,7 +301,7 @@ let
     ''<li><a href="#${id}">${title}</a></li>''
   ) sectionHeadings;
 in
-util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
+util.import_template "${builtins.dirOf source_path}/page.md" (
   site_args
   // {
     # For main pages, just provide a simple lower-case name of the page as the
@@ -315,7 +315,7 @@ util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
     pageCss = css;
 
     inherit footerContent;
-    content = util.template content {
+    content = util.render_template content {
       inherit pageIndex;
       inherit (components) profileLinks contributions;
       publications = pages.publications.export;
@@ -326,7 +326,9 @@ util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
   }
 )
 
----content
+```
+
+```{.html #content}
 <div class="home-intro">
   <img class="headshot" src="/assets/img/leon.jpg"
     alt="Portrait of Leon Schuermann" width="750" height="750">
@@ -546,7 +548,9 @@ util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
   </p>
 </section>
 
----footerContent
+```
+
+```{.html #footerContent}
 <p>
   For encrypted email, you can use
   <a
@@ -554,7 +558,9 @@ util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
     my PGP key</a>.
 </p>
 
----css
+```
+
+```{.css #css}
 @font-face {
   font-family: "Kalam";
   font-style: normal;
@@ -1016,3 +1022,5 @@ h2.main-secheader::before {
     box-shadow: none;
   }
 }
+
+```

@@ -141,7 +141,7 @@ let
       );
 
     in
-    util.import_nixfm ./page.nix.html (
+    util.import_template ./page.md (
       site_args
       // rec {
         inherit pageNavidMatches pageHeaderTitle abstract;
@@ -354,7 +354,7 @@ let
       postFilter,
       canonicalPageId ? null,
     }:
-    util.import_nixfm ./page.nix.html (
+    util.import_template ./page.md (
       site_args
       // {
         pageId = pageId;

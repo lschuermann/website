@@ -43,9 +43,9 @@ let
   };
 
   page_definitions = [
-    (import_nixfm ./index.nix.html)
+    (import_template ./index.md)
     (import ./publications.nix)
-    (import_nixfm ./legal.nix.html)
+    (import_template ./legal.md)
 
     # This provides the blog overview page & all blog entries:
     (import ./blog.nix renderBlogDrafts)

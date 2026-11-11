@@ -9,63 +9,83 @@ let
       ''}"
     );
 
-  parse_nixfm =
+  parse_template =
     file_ish:
     let
       contents = builtins.readFile file_ish;
 
-      # Split file line by line, folding into an attribute set of
-      # different "parts". A nixfm file must start with a part initator
-      # (---$part) line.
-      parts =
-        pkgs.lib.foldl
+      # A small subset of Pandoc fenced code blocks: {.language #section}.
+      result =
+        pkgs.lib.foldl'
           (
-            { parts, currentPart }:
-            line:
+            state: line:
             let
-              partInitMatch = builtins.match "^---([a-zA-Z0-9_]+)$" line;
+              opening = builtins.match "(`{3,}|~{3,})[ \t]*[{][.]([a-zA-Z0-9_+-]+)[ \t]+#([a-zA-Z0-9_]+)[}][ \t]*" line;
+              closing = builtins.match "(`{3,}|~{3,})[ \t]*" line;
+              isClosing =
+                closing != null
+                && builtins.substring 0 1 (builtins.head closing) == builtins.substring 0 1 state.fence
+                && builtins.stringLength (builtins.head closing) >= builtins.stringLength state.fence;
             in
-            if partInitMatch != null then
-              {
-                parts = parts // {
-                  "${builtins.head partInitMatch}" = null;
+            if state.currentPart == null then
+              if opening != null then
+                let
+                  name = builtins.elemAt opening 2;
+                in
+                if builtins.hasAttr name state.parts then
+                  throw "Duplicate template section: ${name}"
+                else
+                  state
+                  // {
+                    currentPart = name;
+                    fence = builtins.head opening;
+                    lines = [ ];
+                  }
+              else if builtins.match "[ \t]*" line != null then
+                state
+              else
+                throw "Expected a template fenced block: ${line}"
+            else if isClosing then
+              state
+              // {
+                parts = state.parts // {
+                  "${state.currentPart}" = pkgs.lib.concatStringsSep "\n" (pkgs.lib.reverseList state.lines);
                 };
-                currentPart = "${builtins.head partInitMatch}";
-              }
-            else if currentPart != null then
-              {
-                inherit currentPart;
-                parts = parts // {
-                  "${currentPart}" =
-                    if parts."${currentPart}" == null then line else parts."${currentPart}" + "\n" + line;
-                };
+                currentPart = null;
+                fence = null;
+                lines = [ ];
               }
             else
-              (throw "Cannot parse nixfm file with content before part initiator!")
+              state // { lines = [ line ] ++ state.lines; }
           )
           {
             parts = { };
             currentPart = null;
+            fence = null;
+            lines = [ ];
           }
           (pkgs.lib.splitString "\n" contents);
     in
-    parts.parts
-    // {
-      source_path = builtins.toString file_ish;
-    };
+    if result.currentPart != null then
+      throw "Unclosed template section: ${result.currentPart}"
+    else
+      result.parts
+      // {
+        source_path = builtins.toString file_ish;
+      };
 
-  import_nixfm =
+  import_template =
     file_ish:
     let
-      parsed = parse_nixfm file_ish;
-      nixDeriv = builtins.toFile "import_nixfm_deriv.nix" parsed.nix;
+      parsed = parse_template file_ish;
+      nixDeriv = builtins.toFile "import_template_deriv.nix" parsed.nix;
     in
     import nixDeriv parsed;
 
-  template =
+  render_template =
     tmpl: ctx:
     let
-      templateNixDeriv = builtins.toFile "template_deriv.nix" ''
+      templateNixDeriv = builtins.toFile "render_template_deriv.nix" ''
         ctx:
         ''\'''\'
         ${tmpl}
@@ -289,9 +309,9 @@ in
 {
   inherit
     import_yaml
-    parse_nixfm
-    import_nixfm
-    template
+    parse_template
+    import_template
+    render_template
     orgMeta
     expandDate
     parseRFC3339Sec

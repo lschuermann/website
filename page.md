@@ -1,4 +1,4 @@
----nix
+```{.nix #nix}
 { pageTemplate, ... }:
 { pkgs, lib, util
 
@@ -113,7 +113,7 @@ in
     url = urlPrefix + pageUrl;
   };
 
-  content = stripTrailingWhitespace' (util.template pageTemplate {
+  content = stripTrailingWhitespace' (util.render_template pageTemplate {
     inherit
       lib
       indent
@@ -149,7 +149,9 @@ in
   validator = util.htmlValidator pkgs pageId filePath;
 }
 
----pageTemplate
+```
+
+```{.html #pageTemplate}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -604,3 +606,5 @@ ${ctx.content}
   </body>
 </html>
 
+
+```

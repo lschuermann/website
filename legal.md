@@ -1,4 +1,4 @@
----nix
+```{.nix #nix}
 { content, source_path, ... }:
 { lib, util, ... }@site_args:
 
@@ -23,7 +23,7 @@ let
       );
 
 in
-  util.import_nixfm "${builtins.dirOf source_path}/page.nix.html" (
+  util.import_template "${builtins.dirOf source_path}/page.md" (
     site_args // {
       # For main pages, just provide a simple lower-case name of the page as the
       # site ID
@@ -33,13 +33,15 @@ in
       # No need to have this page be indexed by search engines:
       allowIndex = false;
 
-      content = util.template content {
+      content = util.render_template content {
         inherit indent contactInfo;
       };
     }
   )
 
----content
+```
+
+```{.html #content}
 <h1 class="first-heading">Legal information: Privacy Policy</h1>
 
 This page contains this website's <a
@@ -188,3 +190,5 @@ href="#legal-privacy-policy">privacy policy</a>.
     rel="noopener">Anwaltskanzlei Weiß &amp; Partner</a>
   </p>
 </section>
+
+```

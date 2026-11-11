@@ -550,7 +550,7 @@ let
 
 in
 [
-  (util.import_nixfm ./page.nix.html (
+  (util.import_template ./page.md (
     site_args
     // {
       # For main pages, just provide a simple lower-case name of the page as the
@@ -608,7 +608,7 @@ in
     }
   ))
 
-  (util.import_nixfm ./page.nix.html (
+  (util.import_template ./page.md (
     site_args
     // {
       pageCss = publicationCss;
@@ -634,7 +634,7 @@ in
     }
   ))
 
-  (util.import_nixfm ./page.nix.html (
+  (util.import_template ./page.md (
     site_args
     // {
       pageCss = publicationCss;
